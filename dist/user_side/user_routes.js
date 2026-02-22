@@ -46,4 +46,5 @@ Router.get("/git_hub/oauth/callback", passport_1.default.authenticate("github", 
 }));
 Router.get("/employee_included_proj", user_Proj_controller_1.emp_included_proj);
 Router.get("/emp_proj-tasks/:projectId", user_Proj_controller_1.emp_proj_tasks);
+Router.post("/add_multiple_todos", user_Proj_controller_1.add_multiple_todos);
 exports.default = Router;

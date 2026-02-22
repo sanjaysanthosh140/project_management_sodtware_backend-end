@@ -15,13 +15,16 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     const oauthObj = new oauth_schema_1.default({
         googleId: profile.id,
         displayName: profile.displayName,
-        profileUrl: profile.photos?.[0].value || ''
+        profileUrl: profile.photos?.[0].value || "",
     });
     console.log(oauthObj);
-    oauthObj.save().then((data) => {
+    oauthObj
+        .save()
+        .then((data) => {
         console.log("OAuth user saved:", data);
         return done(null, data);
-    }).catch((error) => {
+    })
+        .catch((error) => {
         console.log(error);
     });
 }));

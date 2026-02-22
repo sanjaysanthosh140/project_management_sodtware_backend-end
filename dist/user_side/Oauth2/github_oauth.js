@@ -22,12 +22,15 @@ passport_1.default.use(new passport_github2_1.Strategy({
         const authObj = new oauth_schema_1.default({
             googleId: profile.id,
             displayName: data[0].email,
-            profileUrl: profile.photos[0].value || ''
+            profileUrl: profile.photos[0].value || "",
         });
-        authObj.save().then((data) => {
+        authObj
+            .save()
+            .then((data) => {
             console.log("github oauth user saved:", data);
             done(null, data);
-        }).catch((error) => {
+        })
+            .catch((error) => {
             console.log(error);
         });
     });
@@ -38,7 +41,8 @@ passport_1.default.serializeUser((user, done) => {
     done(null, user._id);
 });
 passport_1.default.deserializeUser((id, done) => {
-    oauth_schema_1.default.findById(id)
+    oauth_schema_1.default
+        .findById(id)
         .then((user) => {
         done(null, user);
     })

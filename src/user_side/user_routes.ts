@@ -5,7 +5,7 @@ import { error } from "node:console";
 import passport from "passport";
 import "./Oauth2/google_oauth";
 import "./Oauth2/github_oauth";
-import { emp_included_proj, emp_proj_tasks } from "./user_Proj_controller";
+import { add_multiple_todos, emp_included_proj, emp_proj_tasks } from "./user_Proj_controller";
 const Router = express.Router();
 Router.post("/signup", (req: Request, res: Response) => {
   const { name, email, department, password } = req.body;
@@ -58,4 +58,6 @@ Router.get(
 
 Router.get("/employee_included_proj", emp_included_proj);
 Router.get("/emp_proj-tasks/:projectId", emp_proj_tasks);
+
+Router.post("/add_multiple_todos", add_multiple_todos);
 export default Router;
