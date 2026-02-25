@@ -1,5 +1,6 @@
 
 export const user_project_controller = async (modules: any) => {
+<<<<<<< HEAD
   // interface user_todolist {
   //   project_id: string,
   //   task_id: string,
@@ -17,6 +18,20 @@ export const user_project_controller = async (modules: any) => {
     task_id: string,
     user_subTaks: [tosolist]
   }
+=======
+  interface tosolist {
+    todo_id: String;
+    title: String;
+    status: String;
+    createdAt: String;
+  }
+  type user_tasks_todo_schema = {
+    user_id: string;
+    project_id: string;
+    task_id: string;
+    user_subTaks: [tosolist];
+  };
+>>>>>>> 2889e5db12e09fdda2eba05e985444e7a0e93082
   return {
 
     user_assigned_projects: async (id: string) => {
@@ -48,6 +63,7 @@ export const user_project_controller = async (modules: any) => {
       // console.log(data);
       return data;
     },
+<<<<<<< HEAD
 
     add_sub_tasks_emp: async (employee_proj_tasks: user_tasks_todo_schema | any) => {
       // console.log(employee_proj_tasks);
@@ -73,5 +89,40 @@ export const user_project_controller = async (modules: any) => {
         })
       }
     }
+=======
+    add_sub_tasks_emp: async (
+      employee_proj_tasks: user_tasks_todo_schema | any,
+      emp_id: string,
+    ) => {
+      // console.log(employee_proj_tasks);
+      let todo_data = await modules.findOneAndUpdate(
+        {
+          task_id: employee_proj_tasks.task_id,
+        },
+        {
+          user_subTaks: employee_proj_tasks.todolist,
+        },
+      );
+      if (todo_data) {
+        console.log("update", todo_data);
+      } else {
+        console.log(employee_proj_tasks.todolist);
+        let todoData = await new modules({
+          user_id: emp_id,
+          task_id: employee_proj_tasks.task_id,
+          project_id: employee_proj_tasks.proj_id,
+          user_subTaks: employee_proj_tasks.todolist,
+        });
+        await todoData
+          .save()
+          .then((data: any) => {
+            console.log(data);
+          })
+          .catch((error: Error) => {
+            console.log(error);
+          });
+      }
+    },
+>>>>>>> 2889e5db12e09fdda2eba05e985444e7a0e93082
   };
 };

@@ -73,4 +73,6 @@ Router.get("/headProj", task_controllers_1.Fetch_projects);
 Router.post("/assigned_tasks", task_controllers_1.assigned_tasks);
 Router.get("/check_assigned_tasks/:id", task_controllers_1.check_assigned_taks);
 Router.put("/assigned_tasks/:id", task_controllers_1.update_assigned_tasks);
+//  projoverview
+Router.get("/project-overview/:project_id", task_controllers_1.project_overview);
 exports.default = Router;

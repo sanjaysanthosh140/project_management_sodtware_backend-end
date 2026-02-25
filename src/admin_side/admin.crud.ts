@@ -301,5 +301,81 @@ export const adminCrudFunctions = (modules: any) => {
           return data;
         });
     },
+    projectOverview: async (id: string) => {
+      // console.log("proj_id", id);
+      let data = await modules.aggregate([
+        {
+          $match: { projectId: id },
+        },
+
+        {
+          $lookup: {
+            from: "users",
+            let: { empIds: "$employeeTasks.employee" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $in: [
+                      "$_id",
+                      {
+                        $map: {
+                          input: "$$empIds",
+                          as: "id",
+                          in: { $toObjectId: "$$id" },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "emp_datas",
+          },
+        },
+        {
+          $unwind: "$emp_datas",
+        },
+        {
+          $lookup: {
+            from: "employee_sub_tasks",
+            let: { empid: "$emp_datas._id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $or: [
+                      { $eq: [{ $toObjectId: "$user_id" }, "$$empid"] },
+                      {
+                        $eq: [
+                          { $toObjectId: "$project_id" },
+                          { $toObjectId: id },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: "sub_tasks",
+          },
+
+        },
+        {
+          $unwind: "$sub_tasks"
+        },
+        {
+          $project: {
+            _id: 0,
+            "emp_datas.name": 1,
+            "emp_datas._id": 1,
+            employeeTasks: 1,
+            sub_tasks: 1,
+          },
+        },
+      ]);
+      console.log(data);
+      return data;
+    },
   };
 };

@@ -58,6 +58,5 @@ Router.get(
 
 Router.get("/employee_included_proj", emp_included_proj);
 Router.get("/emp_proj-tasks/:projectId", emp_proj_tasks);
-
 Router.post("/add_multiple_todos", add_multiple_todos);
 export default Router;

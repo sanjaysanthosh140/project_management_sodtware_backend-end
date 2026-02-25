@@ -291,3 +291,14 @@ export const update_assigned_tasks = async (
   let updated = await updates.updateassigenTasks(id, projTasks);
   res.status(200).json({ message: "Tasks updated successfully" });
 };
+
+export const project_overview = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const id = req.params.project_id;
+  const projectOverview = adminCrudFunctions(assignedTasksModel);
+  let overview = await projectOverview.projectOverview(id);
+  res.status(200).json(overview);
+};

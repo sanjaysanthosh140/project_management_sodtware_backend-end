@@ -19,6 +19,7 @@ import {
   Fetch_projects,
   fetchDepartments,
   fetchUsers,
+  project_overview,
   read_reports,
   read_tasks,
   task_controller,
@@ -97,5 +98,8 @@ Router.get("/headProj", Fetch_projects);
 Router.post("/assigned_tasks", assigned_tasks);
 Router.get("/check_assigned_tasks/:id", check_assigned_taks);
 Router.put("/assigned_tasks/:id", update_assigned_tasks);
+
+//  projoverview
+Router.get("/project-overview/:project_id", project_overview);
 
 export default Router;
