@@ -15,6 +15,7 @@ import {
   createDepartments,
   deleteDepartments,
   deleteEmploye,
+  edit_project,
   Employe_logs,
   Fetch_projects,
   fetchDepartments,
@@ -101,5 +102,5 @@ Router.put("/assigned_tasks/:id", update_assigned_tasks);
 
 //  projoverview
 Router.get("/project-overview/:project_id", project_overview);
-
+Router.delete("/edit_project/:id",edit_project);
 export default Router;

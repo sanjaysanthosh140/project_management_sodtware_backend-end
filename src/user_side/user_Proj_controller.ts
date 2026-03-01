@@ -49,7 +49,6 @@ export const emp_proj_tasks = async (
   }
 };
 
-<<<<<<< HEAD
 export const add_multiple_todos = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let employeeTodo = req.body;
@@ -61,25 +60,3 @@ export const add_multiple_todos = async (req: Request, res: Response, next: Next
   }
 
 }
-=======
-export const add_multiple_todos = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    let employeeTodo = req.body;
-    let token: any = req.headers.authorization;
-    let decodedToken: any = jwt.verify(token, "secret_key");
-    console.log("emp_id", decodedToken.id);
-    // console.log(employeeTodo);
-    let employee_sub_tasks = await user_project_controller(user_subTasks_todo);
-    let add_sub_taks = await employee_sub_tasks.add_sub_tasks_emp(
-      employeeTodo,
-      decodedToken.id,
-    );
-  } catch (error) {
-    return error;
-  }
-};
->>>>>>> 2889e5db12e09fdda2eba05e985444e7a0e93082

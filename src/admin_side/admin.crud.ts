@@ -359,10 +359,9 @@ export const adminCrudFunctions = (modules: any) => {
             ],
             as: "sub_tasks",
           },
-
         },
         {
-          $unwind: "$sub_tasks"
+          $unwind: "$sub_tasks",
         },
         {
           $project: {
@@ -376,6 +375,12 @@ export const adminCrudFunctions = (modules: any) => {
       ]);
       console.log(data);
       return data;
+    },
+
+    Edit_project: async (id:Types.ObjectId) => {
+      // console.log(id);
+      let data = await modules.findOne({ _id: id });
+      return data
     },
   };
 };

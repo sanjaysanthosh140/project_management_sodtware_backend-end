@@ -75,4 +75,5 @@ Router.get("/check_assigned_tasks/:id", task_controllers_1.check_assigned_taks);
 Router.put("/assigned_tasks/:id", task_controllers_1.update_assigned_tasks);
 //  projoverview
 Router.get("/project-overview/:project_id", task_controllers_1.project_overview);
+Router.delete("/edit_project/:id", task_controllers_1.edit_project);
 exports.default = Router;

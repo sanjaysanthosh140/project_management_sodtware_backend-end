@@ -268,7 +268,7 @@ const adminCrudFunctions = (modules) => {
                     },
                 },
                 {
-                    $unwind: "$sub_tasks"
+                    $unwind: "$sub_tasks",
                 },
                 {
                     $project: {
@@ -281,6 +281,11 @@ const adminCrudFunctions = (modules) => {
                 },
             ]);
             console.log(data);
+            return data;
+        },
+        Edit_project: async (id) => {
+            // console.log(id);
+            let data = await modules.findOne({ _id: id });
             return data;
         },
     };

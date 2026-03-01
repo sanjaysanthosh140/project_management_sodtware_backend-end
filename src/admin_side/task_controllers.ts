@@ -302,3 +302,20 @@ export const project_overview = async (
   let overview = await projectOverview.projectOverview(id);
   res.status(200).json(overview);
 };
+
+export const edit_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log("working");
+    const id: any = req.params.id;
+    const edit_project = adminCrudFunctions(departmentProjectsModle);
+    const edit_proj_data = await edit_project.Edit_project(id);
+    console.log(edit_proj_data);
+    res.status(200).send(edit_proj_data);
+  } catch (error) {
+    res.status(500).send({ message: "server-error" });
+  }
+};

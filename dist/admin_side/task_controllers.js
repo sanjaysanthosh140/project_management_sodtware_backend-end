@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -196,3 +196,17 @@ const project_overview = async (req, res, next) => {
     res.status(200).json(overview);
 };
 exports.project_overview = project_overview;
+const edit_project = async (req, res, next) => {
+    try {
+        console.log("working");
+        const id = req.params.id;
+        const edit_project = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
+        const edit_proj_data = await edit_project.Edit_project(id);
+        console.log(edit_proj_data);
+        res.status(200).send(edit_proj_data);
+    }
+    catch (error) {
+        res.status(500).send({ message: "server-error" });
+    }
+};
+exports.edit_project = edit_project;
