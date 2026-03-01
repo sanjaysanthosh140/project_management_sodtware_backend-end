@@ -319,3 +319,25 @@ export const edit_project = async (
     res.status(500).send({ message: "server-error" });
   }
 };
+
+export const update_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let proj_id = req.params.id;
+    let updated_data = req.body;
+    const update_project = adminCrudFunctions(departmentProjectsModle);
+    const updated_datas:any = update_project.update_Department(
+      updated_data,
+      proj_id,
+    );
+    if (updated_datas) {
+      res.status(200).send({ message: "successfully updated " });
+    }
+    console.log(req.body, proj_id);
+  } catch (error) {
+    res.status(501).send({ message: "internal-server-error" });
+  }
+};

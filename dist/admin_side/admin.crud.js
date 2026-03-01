@@ -288,6 +288,23 @@ const adminCrudFunctions = (modules) => {
             let data = await modules.findOne({ _id: id });
             return data;
         },
+        update_Department: async (data, id) => {
+            let { title, description, deadline, priority, teamMembers, todos } = data;
+            let updated = await modules.findByIdAndUpdate({
+                _id: id,
+            }, {
+                $set: {
+                    title,
+                    description,
+                    deadline,
+                    priority,
+                    teamMembers,
+                    todos,
+                },
+            });
+            console.log(updated);
+            return updated;
+        },
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -210,3 +210,19 @@ const edit_project = async (req, res, next) => {
     }
 };
 exports.edit_project = edit_project;
+const update_project = async (req, res, next) => {
+    try {
+        let proj_id = req.params.id;
+        let updated_data = req.body;
+        const update_project = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
+        const updated_datas = update_project.update_Department(updated_data, proj_id);
+        if (updated_datas) {
+            res.status(200).send({ message: "successfully updated " });
+        }
+        console.log(req.body, proj_id);
+    }
+    catch (error) {
+        res.status(501).send({ message: "internal-server-error" });
+    }
+};
+exports.update_project = update_project;

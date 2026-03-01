@@ -25,6 +25,7 @@ import {
   read_tasks,
   task_controller,
   update_assigned_tasks,
+  update_project,
   updateAttendance,
   updateDepartments,
   updateEmplye,
@@ -102,5 +103,6 @@ Router.put("/assigned_tasks/:id", update_assigned_tasks);
 
 //  projoverview
 Router.get("/project-overview/:project_id", project_overview);
-Router.delete("/edit_project/:id",edit_project);
+Router.delete("/edit_project/:id", edit_project);
+Router.put("/updateProj/:id", update_project);
 export default Router;

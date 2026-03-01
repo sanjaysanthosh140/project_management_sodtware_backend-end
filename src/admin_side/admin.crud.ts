@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import user_model from "../db_controllers/db_models/user_schema";
 interface IteamMembers {
   userId: string;
@@ -377,10 +377,31 @@ export const adminCrudFunctions = (modules: any) => {
       return data;
     },
 
-    Edit_project: async (id:Types.ObjectId) => {
+    Edit_project: async (id: Types.ObjectId) => {
       // console.log(id);
       let data = await modules.findOne({ _id: id });
-      return data
+      return data;
+    },
+
+    update_Department: async (data: Iproject, id: any) => {
+      let { title, description, deadline, priority, teamMembers, todos } = data;
+      let updated = await modules.findByIdAndUpdate(
+        {
+          _id: id,
+        },
+        {
+          $set: {
+            title,
+            description,
+            deadline,
+            priority,
+            teamMembers,
+            todos,
+          },
+        },
+      );
+      console.log(updated);
+      return updated;
     },
   };
 };
