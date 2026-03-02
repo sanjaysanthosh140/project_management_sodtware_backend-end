@@ -210,7 +210,7 @@ const adminCrudFunctions = (modules) => {
             });
         },
         projectOverview: async (id) => {
-            // console.log("proj_id", id);
+            console.log("proj_id", id);
             let data = await modules.aggregate([
                 {
                     $match: { projectId: id },
@@ -252,7 +252,7 @@ const adminCrudFunctions = (modules) => {
                                 $match: {
                                     $expr: {
                                         $or: [
-                                            { $eq: [{ $toObjectId: "$user_id" }, "$$empid"] },
+                                            { $eq: [{ $toObjectId: "$user_id" }, { $toObjectId: "$$empid" }] },
                                             {
                                                 $eq: [
                                                     { $toObjectId: "$project_id" },
