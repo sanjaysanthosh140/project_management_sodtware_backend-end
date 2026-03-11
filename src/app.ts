@@ -6,7 +6,7 @@ import cors from "cors";
 // import passport from "passport";
 // import express_session from "express-session";
 const app = express();
-const PORT = 8080;
+let port =8080;
 
 app.use(
   cors({
@@ -38,6 +38,6 @@ app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
 
-app.listen(PORT, '0.0.0.0' ,() => {
-  console.log(`server is running on ${PORT}`);
+app.listen(port, '0.0.0.0',() => {
+  console.log(`server is running on ${port}`);
 });

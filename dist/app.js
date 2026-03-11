@@ -11,7 +11,7 @@ const cors_1 = __importDefault(require("cors"));
 // import passport from "passport";
 // import express_session from "express-session";
 const app = (0, express_1.default)();
-const PORT = 8080;
+let port = 8080;
 app.use((0, cors_1.default)({
     origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -37,6 +37,6 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json());
 app.use("/", user_routes_1.default);
 app.use("/admin", admin_routes_1.default);
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`server is running on ${PORT}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`server is running on ${port}`);
 });
