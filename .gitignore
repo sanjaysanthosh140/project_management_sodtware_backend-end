@@ -1,5 +1,3 @@
 node_modules
-.env
 src/web_tokens
 dist/web_tokens
-dist
