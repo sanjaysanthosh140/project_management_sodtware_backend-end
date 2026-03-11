@@ -36,11 +36,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.admin_roles_models = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
 const admin_roles_schema = new mongoose_1.Schema({
-    position: {
+    name: {
         type: String,
         require: true,
     },
-    name: {
+    email: {
         type: String,
         require: true,
     },
@@ -50,6 +50,14 @@ const admin_roles_schema = new mongoose_1.Schema({
     },
     password: {
         type: String,
+        require: true,
+    },
+    role: {
+        type: String,
+        require: true,
+    },
+    active: {
+        type: Boolean,
         require: true,
     },
 });

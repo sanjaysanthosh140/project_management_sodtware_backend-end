@@ -5,7 +5,13 @@ import { error } from "node:console";
 import passport from "passport";
 import "./Oauth2/google_oauth";
 import "./Oauth2/github_oauth";
-import { add_multiple_todos, emp_included_proj, emp_proj_tasks } from "./user_Proj_controller";
+import {
+  achive_todo_list,
+  add_multiple_todos,
+  emp_included_proj,
+  emp_proj_tasks,
+  employee_profile,
+} from "./user_Proj_controller";
 const Router = express.Router();
 Router.post("/signup", (req: Request, res: Response) => {
   const { name, email, department, password } = req.body;
@@ -22,10 +28,23 @@ Router.post("/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
   user_authorization(email, password)
     .then((data) => {
-      if (data) res.json({ status: true, token: data });
+      if (data) {
+        res.json({ status: true, token: data });
+        console.log(data);
+      } else {
+        res
+          .status(401)
+          .json({ status: false, message: "invalid email or password" });
+      }
     })
     .catch((error) => {
-      console.log("error form catch", error);
+      res
+        .status(500)
+        .json({
+          status: false,
+          message: "server error try again later",
+          error: error,
+        });
     });
 });
 
@@ -36,7 +55,7 @@ Router.get(
 
 Router.get(
   "/oauth2/redirect/google",
-  passport.authenticate("google", {
+  passport.authenticate("google", {    
     successRedirect: "http://localhost:5173/app/gateway",
     failureRedirect: "http://localhost:3000/login",
   }),
@@ -50,7 +69,7 @@ Router.get(
 );
 Router.get(
   "/git_hub/oauth/callback",
-  passport.authenticate("github", {
+  passport.authenticate("github", { 
     successRedirect: "http://localhost:5173/app/gateway",
     failureRedirect: "http://localhost:5173/login",
   }),
@@ -59,4 +78,6 @@ Router.get(
 Router.get("/employee_included_proj", emp_included_proj);
 Router.get("/emp_proj-tasks/:projectId", emp_proj_tasks);
 Router.post("/add_multiple_todos", add_multiple_todos);
+Router.get("/achive_created_todo_list", achive_todo_list);
+Router.get("/employee_profile", employee_profile);
 export default Router;

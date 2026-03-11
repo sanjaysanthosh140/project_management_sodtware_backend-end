@@ -11,6 +11,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 let hash2password;
 const user_auth = (name, email, department, password) => {
     return new Promise((resolver, reject) => {
+        //create account  & sign-up
         if (name && email && department && password) {
             // console.log(name, email, password);
             let saltrount = 10;
@@ -37,16 +38,22 @@ const user_auth = (name, email, department, password) => {
 };
 exports.user_auth = user_auth;
 const user_authorization = (email, password) => {
+    // login
     return new Promise((resolve, reject) => {
         let token = null;
         user_schema_1.default
             .find({ email: email })
             .then((data) => {
-            let id = data[0]._id;
-            const token = jsonwebtoken_1.default.sign({ id }, "secret_key");
-            let hash = data[0].password;
-            let res = bcrypt_1.default.compareSync(password, hash);
-            res ? resolve(token) : reject(false);
+            if (data.length > 0) {
+                let id = data[0]._id;
+                const token = jsonwebtoken_1.default.sign({ id }, "secret_key");
+                let hash = data[0].password;
+                let res = bcrypt_1.default.compareSync(password, hash);
+                res ? resolve(token) : reject(false);
+            }
+            else {
+                resolve(false);
+            }
         })
             .catch((error) => {
             reject(error);
@@ -79,7 +86,7 @@ function getGithubEmail(accessToken) {
         //             headers: {
         //                 Authorization: `Bearer ${accessToken}`,
         //                 Accept: 'application/vnd.github+json',
-        //                 'User-Agent': 'your-app-name' // GitHub REQUIRES this              
+        //                 'User-Agent': 'your-app-name' // GitHub REQUIRES this
         //             }
         //         }
         //     );

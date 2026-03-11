@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.hr_projects_progress = exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -56,6 +56,12 @@ const addEmploye = async (req, res, next) => {
     res.status(200).json(empObj.name);
 };
 exports.addEmploye = addEmploye;
+const create_admins = (req, res, next) => {
+    let { name, email, department, password, role, active } = req.body;
+    const create_admins = (0, admin_crud_1.adminCrudFunctions)(admin_roles_schema_1.admin_roles_models);
+    const admin_data = create_admins.add_new_admins(name, email, department, password, role, active);
+};
+exports.create_admins = create_admins;
 const deleteEmploye = async (req, res, next) => {
     const id = req.params.id;
     const employeDelete = (0, admin_crud_1.adminCrudFunctions)(user_schema_1.default);
@@ -226,3 +232,15 @@ const update_project = async (req, res, next) => {
     }
 };
 exports.update_project = update_project;
+const hr_projects_progress = async (req, res, next) => {
+    try {
+        const hrProjectsProgress = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
+        const project_data = await hrProjectsProgress.hr_proj_progress();
+        console.log(project_data);
+        res.status(200).send(project_data);
+    }
+    catch (error) {
+        res.status(500).send({ message: "internal-server-error" });
+    }
+};
+exports.hr_projects_progress = hr_projects_progress;

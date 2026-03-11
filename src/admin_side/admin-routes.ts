@@ -11,6 +11,7 @@ import {
   assigned_tasks,
   availableEmployess,
   check_assigned_taks,
+  create_admins,
   create_pojects,
   createDepartments,
   deleteDepartments,
@@ -20,6 +21,7 @@ import {
   Fetch_projects,
   fetchDepartments,
   fetchUsers,
+  hr_projects_progress,
   project_overview,
   read_reports,
   read_tasks,
@@ -31,32 +33,31 @@ import {
   updateEmplye,
   work_Reports,
 } from "./task_controllers";
-Router.post("/verify_authorization", (req: Request, res: Response) => {
-  const { position, name, department, password } = req.body;
-  if (position && name && department && password) {
-    const saltrount = 10;
-    const salt = bcrypt.genSaltSync(saltrount);
-    const hash2 = bcrypt.hashSync(password, salt);
-
-    const admin_obj = new admin_roles_models({
-      position: position,
-      name: name,
-      department: department,
-      password: hash2,
-    });
-    admin_obj
-      .save()
-      .then((data) => {
-        if (data) {
-          let id: any = data._id;
-          const tokens = jwt.sign({ id }, "secret_key");
-          // console.log(tokens);
-          res.status(200).json({ position: position, token: tokens });
-        }
+Router.post("/verify_authorization", async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  if (email && password) {
+    console.log(email, password);
+    let admin: any = await admin_roles_models
+      .findOne({
+        email: email,
       })
       .catch((error) => {
         console.log(error);
       });
+    !admin
+      ? res.status(404).json({ status: false, message: "email not found" })
+      : null;
+    let hash = admin.password;
+    let id = admin._id;
+    let authorized = bcrypt.compareSync(password, hash);
+    if (authorized) {
+      const token = jwt.sign({ id }, "secret_key");
+      !token
+        ? null
+        : res.json({ status: true, token: token, position: admin.role });
+    } else {
+      res.status(401).json({ status: false, message: "password incorrect" });
+    }
   }
 });
 
@@ -81,13 +82,14 @@ Router.get("/users", fetchUsers);
 Router.post("/employes", addEmploye);
 Router.delete("/deleteEmp/:id", deleteEmploye);
 Router.put("/updateEmploye/:id", updateEmplye);
+Router.post("/add_admins", create_admins);
 
 //departments
 Router.post("/addDep", createDepartments);
 Router.get("/departments", fetchDepartments);
 Router.delete("/deleteDept/:id", deleteDepartments);
 Router.put("/Editdepartments/:id", updateDepartments);
-
+Router.get("/hr_projects_progress", hr_projects_progress);
 Router.post("/attendance", updateAttendance);
 Router.get("/employe_log", Employe_logs);
 
@@ -101,8 +103,10 @@ Router.post("/assigned_tasks", assigned_tasks);
 Router.get("/check_assigned_tasks/:id", check_assigned_taks);
 Router.put("/assigned_tasks/:id", update_assigned_tasks);
 
+
 //  projoverview
 Router.get("/project-overview/:project_id", project_overview);
 Router.delete("/edit_project/:id", edit_project);
 Router.put("/updateProj/:id", update_project);
+
 export default Router;

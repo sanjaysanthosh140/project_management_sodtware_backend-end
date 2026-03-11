@@ -13,7 +13,7 @@ const express_session_1 = __importDefault(require("express-session"));
 const app = (0, express_1.default)();
 const PORT = 8080;
 app.use((0, cors_1.default)({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true

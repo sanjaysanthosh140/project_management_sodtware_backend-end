@@ -9,8 +9,9 @@ export const user_auth = (
   department: string,
   password: string,
 ) => {
-  return new Promise((resolver, reject) => {                    //create account  & sign-up
-    if (name && email && department && password) { 
+  return new Promise((resolver, reject) => {
+    //create account  & sign-up
+    if (name && email && department && password) {
       // console.log(name, email, password);
       let saltrount = 10;
       let salt = bcrypt.genSaltSync(saltrount);
@@ -34,18 +35,22 @@ export const user_auth = (
   });
 };
 
-export const user_authorization = (email: any, password: string) => {    // login 
+export const user_authorization = (email: any, password: string) => {
+  // login
   return new Promise((resolve, reject) => {
     let token = null;
     user_model
       .find({ email: email })
       .then((data) => {
-        let id = data[0]._id;
-        const token = jwt.sign({ id }, "secret_key");
-
-        let hash = data[0].password;
-        let res = bcrypt.compareSync(password, hash);
-        res ? resolve(token) : reject(false);
+        if (data.length > 0) {
+          let id = data[0]._id;
+          const token = jwt.sign({ id }, "secret_key");
+          let hash = data[0].password;
+          let res = bcrypt.compareSync(password, hash);
+          res ? resolve(token) : reject(false);
+        }else{
+          resolve(false);
+        }
       })
       .catch((error) => {
         reject(error);
@@ -81,7 +86,7 @@ export function getGithubEmail(accessToken: any) {
     //             headers: {
     //                 Authorization: `Bearer ${accessToken}`,
     //                 Accept: 'application/vnd.github+json',
-    //                 'User-Agent': 'your-app-name' // GitHub REQUIRES this              
+    //                 'User-Agent': 'your-app-name' // GitHub REQUIRES this
     //             }
     //         }
     //     );

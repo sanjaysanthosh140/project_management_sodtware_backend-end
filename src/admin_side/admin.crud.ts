@@ -68,6 +68,29 @@ export const adminCrudFunctions = (modules: any) => {
       return emplyObj;
       // function to create users ....
     },
+
+    add_new_admins: async (
+      name: string,
+      email: string,
+      department: string,
+      password: string,
+      role: string,
+      active: string,
+    ) => {
+      let salt = bcrypt.genSaltSync(10);
+      let hash = bcrypt.hashSync(password, salt);
+      let model = new modules({
+        name: name,
+        email: email,
+        department: department,
+        password: hash,
+        role: role,
+        active: active,
+      });
+      let data = await model.save();
+      console.log(data);
+    },
+
     updateEmployess: async (
       id: string,
       name: string,
@@ -96,18 +119,19 @@ export const adminCrudFunctions = (modules: any) => {
       return deletedEmploye.name;
     },
     createDepartments: async (
-      id: string,
+      Dep_id: string,
       title: string,
       color: string,
       description: string,
     ) => {
       let departmentObj = new modules({
-        id,
-        title,
-        color,
-        description,
+        Dep_id:Dep_id,
+        title:title,
+        color:color,
+        description:description,
       });
 
+      
       let newDep = await departmentObj.save();
       return newDep;
     },
@@ -334,24 +358,23 @@ export const adminCrudFunctions = (modules: any) => {
           },
         },
         {
-          $unwind: "$emp_datas",
+          $unwind: {
+            path: "$emp_datas",
+            preserveNullAndEmptyArrays: true,
+          },
         },
         {
           $lookup: {
             from: "employee_sub_tasks",
-            let: { empid: "$emp_datas._id" },
+            let: { taskid: "$employeeTasks.tasks.task_id" },
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $or: [
-                      { $eq: [{$toObjectId: "$user_id"},{$toObjectId: "$$empid"}] },
+                      { $eq: ["$task_id", "$$taskid"] },
                       {
-                        
-                        $eq: [
-                          { $toObjectId: "$project_id" },
-                          { $toObjectId: id },
-                        ],
+                        $eq: ["$project_id", id],
                       },
                     ],
                   },
@@ -361,9 +384,10 @@ export const adminCrudFunctions = (modules: any) => {
             as: "sub_tasks",
           },
         },
-        {
-          $unwind: "$sub_tasks",
-        },
+        // {
+        // $unwind: "$sub_tasks",
+        // },
+
         {
           $project: {
             _id: 0,
@@ -403,6 +427,10 @@ export const adminCrudFunctions = (modules: any) => {
       );
       console.log(updated);
       return updated;
+    },
+    hr_proj_progress: async () => {
+      let data = await modules.find({});
+      return data;
     },
   };
 };

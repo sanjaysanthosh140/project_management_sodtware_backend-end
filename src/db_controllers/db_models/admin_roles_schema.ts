@@ -1,17 +1,18 @@
 import mongoose, { Schema } from "mongoose";
 interface Iadmin_roles {
-  position: string;
   name: string;
+  email: string;
   department: string;
-  password: string;
+  role: string;
+  active: boolean;
 }
 
 const admin_roles_schema = new Schema({
-  position: {
+  name: {
     type: String,
     require: true,
   },
-  name: {
+  email: {
     type: String,
     require: true,
   },
@@ -21,6 +22,14 @@ const admin_roles_schema = new Schema({
   },
   password: {
     type: String,
+    require: true,
+  },
+  role: {
+    type: String,
+    require: true,
+  },
+  active: {
+    type: Boolean,
     require: true,
   },
 });

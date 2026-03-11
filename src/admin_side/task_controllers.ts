@@ -70,6 +70,23 @@ export const addEmploye = async (
   res.status(200).json(empObj.name);
 };
 
+export const create_admins = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let { name, email, department, password, role, active } = req.body;
+  const create_admins = adminCrudFunctions(admin_roles_models);
+  const admin_data = create_admins.add_new_admins(
+    name,
+    email,
+    department,
+    password,
+    role,
+    active,
+  );
+};
+
 export const deleteEmploye = async (
   req: Request,
   res: Response,
@@ -329,7 +346,7 @@ export const update_project = async (
     let proj_id = req.params.id;
     let updated_data = req.body;
     const update_project = adminCrudFunctions(departmentProjectsModle);
-    const updated_datas:any = update_project.update_Department(
+    const updated_datas: any = update_project.update_Department(
       updated_data,
       proj_id,
     );
@@ -339,5 +356,20 @@ export const update_project = async (
     console.log(req.body, proj_id);
   } catch (error) {
     res.status(501).send({ message: "internal-server-error" });
+  }
+};
+
+export const hr_projects_progress = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const hrProjectsProgress = adminCrudFunctions(departmentProjectsModle);
+    const project_data = await hrProjectsProgress.hr_proj_progress();
+    console.log(project_data);
+    res.status(200).send(project_data);
+  } catch (error) {
+    res.status(500).send({ message: "internal-server-error" });
   }
 };

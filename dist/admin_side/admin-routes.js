@@ -11,31 +11,32 @@ const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_sc
 const tasks_schema_1 = __importDefault(require("../db_controllers/db_models/task_schemas/tasks_schema"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const task_controllers_1 = require("./task_controllers");
-Router.post("/verify_authorization", (req, res) => {
-    const { position, name, department, password } = req.body;
-    if (position && name && department && password) {
-        const saltrount = 10;
-        const salt = bcrypt_1.default.genSaltSync(saltrount);
-        const hash2 = bcrypt_1.default.hashSync(password, salt);
-        const admin_obj = new admin_roles_schema_1.admin_roles_models({
-            position: position,
-            name: name,
-            department: department,
-            password: hash2,
-        });
-        admin_obj
-            .save()
-            .then((data) => {
-            if (data) {
-                let id = data._id;
-                const tokens = jsonwebtoken_1.default.sign({ id }, "secret_key");
-                // console.log(tokens);
-                res.status(200).json({ position: position, token: tokens });
-            }
+Router.post("/verify_authorization", async (req, res) => {
+    const { email, password } = req.body;
+    if (email && password) {
+        console.log(email, password);
+        let admin = await admin_roles_schema_1.admin_roles_models
+            .findOne({
+            email: email,
         })
             .catch((error) => {
             console.log(error);
         });
+        !admin
+            ? res.status(404).json({ status: false, message: "email not found" })
+            : null;
+        let hash = admin.password;
+        let id = admin._id;
+        let authorized = bcrypt_1.default.compareSync(password, hash);
+        if (authorized) {
+            const token = jsonwebtoken_1.default.sign({ id }, "secret_key");
+            !token
+                ? null
+                : res.json({ status: true, token: token, position: admin.role });
+        }
+        else {
+            res.status(401).json({ status: false, message: "password incorrect" });
+        }
     }
 });
 Router.post("/add_task", (req, res) => {
@@ -58,11 +59,13 @@ Router.get("/users", task_controllers_1.fetchUsers);
 Router.post("/employes", task_controllers_1.addEmploye);
 Router.delete("/deleteEmp/:id", task_controllers_1.deleteEmploye);
 Router.put("/updateEmploye/:id", task_controllers_1.updateEmplye);
+Router.post("/add_admins", task_controllers_1.create_admins);
 //departments
 Router.post("/addDep", task_controllers_1.createDepartments);
 Router.get("/departments", task_controllers_1.fetchDepartments);
 Router.delete("/deleteDept/:id", task_controllers_1.deleteDepartments);
 Router.put("/Editdepartments/:id", task_controllers_1.updateDepartments);
+Router.get("/hr_projects_progress", task_controllers_1.hr_projects_progress);
 Router.post("/attendance", task_controllers_1.updateAttendance);
 Router.get("/employe_log", task_controllers_1.Employe_logs);
 Router.post("/Daily_reports", task_controllers_1.work_Reports);

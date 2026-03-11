@@ -25,11 +25,24 @@ Router.post("/login", (req, res) => {
     const { email, password } = req.body;
     (0, user_auth_1.user_authorization)(email, password)
         .then((data) => {
-        if (data)
+        if (data) {
             res.json({ status: true, token: data });
+            console.log(data);
+        }
+        else {
+            res
+                .status(401)
+                .json({ status: false, message: "invalid email or password" });
+        }
     })
         .catch((error) => {
-        console.log("error form catch", error);
+        res
+            .status(500)
+            .json({
+            status: false,
+            message: "server error try again later",
+            error: error,
+        });
     });
 });
 Router.get("/google/auth", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
@@ -47,4 +60,6 @@ Router.get("/git_hub/oauth/callback", passport_1.default.authenticate("github", 
 Router.get("/employee_included_proj", user_Proj_controller_1.emp_included_proj);
 Router.get("/emp_proj-tasks/:projectId", user_Proj_controller_1.emp_proj_tasks);
 Router.post("/add_multiple_todos", user_Proj_controller_1.add_multiple_todos);
+Router.get("/achive_created_todo_list", user_Proj_controller_1.achive_todo_list);
+Router.get("/employee_profile", user_Proj_controller_1.employee_profile);
 exports.default = Router;

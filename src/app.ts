@@ -10,7 +10,7 @@ const PORT = 8080;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true
@@ -38,6 +38,6 @@ app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0' ,() => {
   console.log(`server is running on ${PORT}`);
 });

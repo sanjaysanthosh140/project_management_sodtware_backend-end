@@ -1,14 +1,14 @@
 import mongoose, { Schema } from "mongoose";
 
 interface DepartmentSchema {
-  id: string;
+  Dep_id: string;
   title: string;
   color: string;
   description: string;
 }
 
 const departmentSchema = new Schema({
-  id: {
+  Dep_id: {
     type: String,
     required: true,
   },

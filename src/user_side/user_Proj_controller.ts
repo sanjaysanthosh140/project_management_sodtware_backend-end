@@ -5,6 +5,7 @@ import { user_project_controller } from "./user_controller";
 import departmentProjectsModle from "../db_controllers/db_models/admin_side/department_projects";
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
 import user_subTasks_todo from "../db_controllers/db_models/user_side/user_tasks_todo";
+import user_model from "../db_controllers/db_models/user_schema";
 interface IdecodedToken {
   id: ObjectId;
   iat: number;
@@ -31,14 +32,14 @@ export const emp_included_proj = async (
 export const emp_proj_tasks = async (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction,   
 ) => {
   try {
     let id: any = req.params.projectId;
     let decodedToken: any = req.headers.authorization;
     let encodedToken: any = jwt.verify(decodedToken, "secret_key");
     // console.log("proj_id", id, "emp_id", encodedToken.id);
-    let assigned_tasks_for_emp =
+    let assigned_tasks_for_emp =  
       await user_project_controller(assignedTasksModel);
     let employe_proj_tasks =
       await assigned_tasks_for_emp.employee_assigned_tasks(encodedToken.id, id);
@@ -49,14 +50,57 @@ export const emp_proj_tasks = async (
   }
 };
 
-export const add_multiple_todos = async (req: Request, res: Response, next: NextFunction) => {
+export const add_multiple_todos = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     let employeeTodo = req.body;
-    console.log(employeeTodo);
+    let emp_ids: any = req.headers.authorization;
+    let emp_id: any = jwt.verify(emp_ids, "secret_key");
+    // console.log(employeeTodo);
     let employee_sub_tasks = await user_project_controller(user_subTasks_todo);
-    let add_sub_taks = await employee_sub_tasks.add_sub_tasks_emp(employeeTodo);
+    let add_sub_taks = await employee_sub_tasks.add_sub_tasks_emp(
+      employeeTodo,
+      emp_id.id,
+    );
   } catch (error) {
     return error;
   }
+};
 
-}
+export const achive_todo_list = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let id: any = req.headers.authorization;
+    let emp_id: any = jwt.verify(id, "secret_key");
+    let achive_todo_method = await user_project_controller(user_subTasks_todo);
+    let sub_todos = await achive_todo_method.achive_sub_tods(emp_id.id);
+    res.status(200).send(sub_todos);
+  } catch (error) {
+    console.log(error);
+
+    res.status(501).send({ message: "internal server error" });
+  }
+};
+
+export const employee_profile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let id = req.headers.authorization;
+  try {
+    let employee_profile = await user_project_controller(user_model);
+    let employee_data = await employee_profile.achive_user_profile(id);
+    console.log(employee_data)
+     res.status(200).send(employee_data);
+
+  } catch (error) {
+    console.log(error);
+  }
+};
