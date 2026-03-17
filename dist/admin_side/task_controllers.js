@@ -60,6 +60,7 @@ const create_admins = (req, res, next) => {
     let { name, email, department, password, role, active } = req.body;
     const create_admins = (0, admin_crud_1.adminCrudFunctions)(admin_roles_schema_1.admin_roles_models);
     const admin_data = create_admins.add_new_admins(name, email, department, password, role, active);
+    res.status(200).json(admin_data);
 };
 exports.create_admins = create_admins;
 const deleteEmploye = async (req, res, next) => {

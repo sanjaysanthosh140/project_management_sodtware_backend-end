@@ -39,7 +39,7 @@ const adminCrudFunctions = (modules) => {
                 active: active,
             });
             let data = await model.save();
-            console.log(data);
+            return data.name;
         },
         updateEmployess: async (id, name, email, department) => {
             let updateEmploye = await modules.findByIdAndUpdate(id, {
@@ -261,17 +261,42 @@ const adminCrudFunctions = (modules) => {
                     },
                 },
                 {
+                    $project: {
+                        _id: 0,
+                        projectId: 0,
+                        headId: 0,
+                        // eployeeTasks:1,
+                        //  "emp_datas.name":1,
+                    },
+                },
+                {
                     $lookup: {
                         from: "employee_sub_tasks",
-                        let: { taskid: "$employeeTasks.tasks.task_id" },
+                        let: {
+                            user_id: "$employeeTasks.employee",
+                            taskIds: "$employeeTasks.tasks.task_id ",
+                        },
                         pipeline: [
                             {
                                 $match: {
                                     $expr: {
-                                        $or: [
-                                            { $eq: ["$task_id", "$$taskid"] },
+                                        $and: [
+                                            { $eq: ["$project_id", id] },
                                             {
-                                                $eq: ["$project_id", id],
+                                                $map: {
+                                                    input: "$$user_id",
+                                                    as: "id",
+                                                    in: { $eq: ["$user_id", "$$id"] },
+                                                },
+                                            },
+                                            {
+                                                $map: {
+                                                    input: "$$taskIds",
+                                                    as: "tasks_id",
+                                                    in: {
+                                                        $eq: ["$task_id", "$$tasks_id"],
+                                                    },
+                                                },
                                             },
                                         ],
                                     },

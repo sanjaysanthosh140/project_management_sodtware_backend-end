@@ -88,7 +88,7 @@ export const adminCrudFunctions = (modules: any) => {
         active: active,
       });
       let data = await model.save();
-      console.log(data);
+      return data.name
     },
 
     updateEmployess: async (
@@ -125,13 +125,12 @@ export const adminCrudFunctions = (modules: any) => {
       description: string,
     ) => {
       let departmentObj = new modules({
-        Dep_id:Dep_id,
-        title:title,
-        color:color,
-        description:description,
+        Dep_id: Dep_id,
+        title: title,
+        color: color,
+        description: description,
       });
 
-      
       let newDep = await departmentObj.save();
       return newDep;
     },
@@ -364,17 +363,43 @@ export const adminCrudFunctions = (modules: any) => {
           },
         },
         {
+          $project: {
+            _id: 0,
+            projectId: 0,
+            headId: 0,
+            // eployeeTasks:1,
+            //  "emp_datas.name":1,
+          },
+        },
+
+        {
           $lookup: {
             from: "employee_sub_tasks",
-            let: { taskid: "$employeeTasks.tasks.task_id" },
+            let: {
+              user_id: "$employeeTasks.employee",
+              taskIds: "$employeeTasks.tasks.task_id ",
+            },
             pipeline: [
               {
                 $match: {
                   $expr: {
-                    $or: [
-                      { $eq: ["$task_id", "$$taskid"] },
+                    $and: [
+                      { $eq: ["$project_id", id] },
                       {
-                        $eq: ["$project_id", id],
+                        $map: {
+                          input: "$$user_id",
+                          as: "id",
+                          in: { $eq: ["$user_id", "$$id"] },
+                        },
+                      },
+                      {
+                        $map: {
+                          input: "$$taskIds",
+                          as: "tasks_id",
+                          in: {
+                            $eq: ["$task_id", "$$tasks_id"],
+                          },
+                        },
                       },
                     ],
                   },
@@ -385,7 +410,7 @@ export const adminCrudFunctions = (modules: any) => {
           },
         },
         // {
-        // $unwind: "$sub_tasks",
+          // $unwind: "$sub_tasks",
         // },
 
         {

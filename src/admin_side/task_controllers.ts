@@ -85,6 +85,7 @@ export const create_admins = (
     role,
     active,
   );
+  res.status(200).json(admin_data);
 };
 
 export const deleteEmploye = async (
