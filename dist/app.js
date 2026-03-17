@@ -13,7 +13,7 @@ const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 let port = 8080;
 app.use((0, cors_1.default)({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "https://alkor-a6160.web.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true
