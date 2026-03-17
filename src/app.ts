@@ -33,7 +33,7 @@ connectiion();
 // 
 // app.use(passport.initialize());
 // app.use(passport.session());
-
+// 
 app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
