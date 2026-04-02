@@ -38,6 +38,6 @@ app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
 
-server.listen(port, '0.0.0.0', () => {
+server.listen(port,'0.0.0.0', () => {
   console.log(`server is running on ${port}`);
 });
