@@ -14,13 +14,21 @@ import {
   create_admins,
   create_pojects,
   createDepartments,
+  delete_daily_report,
+  delete_groupe,
+  deleteadmins,
   deleteDepartments,
   deleteEmploye,
+  edit_daily_report,
+  edit_group,
   edit_project,
   Employe_logs,
   Fetch_projects,
   fetchDepartments,
   fetchUsers,
+  get_admin_profile,
+  get_admins,
+  get_group,
   hr_projects_progress,
   project_overview,
   read_reports,
@@ -28,9 +36,11 @@ import {
   task_controller,
   update_assigned_tasks,
   update_project,
+  updateadminpasswods,
   updateAttendance,
   updateDepartments,
   updateEmplye,
+  updateUserpassword,
   work_Reports,
 } from "./task_controllers";
 Router.post("/verify_authorization", async (req: Request, res: Response) => {
@@ -94,6 +104,8 @@ Router.post("/attendance", updateAttendance);
 Router.get("/employe_log", Employe_logs);
 
 Router.post("/Daily_reports", work_Reports);
+Router.put("/update_report/:editingId", edit_daily_report)
+Router.delete("/delete_report/:id", delete_daily_report)
 Router.get("/reports", read_reports);
 
 Router.post("/create_project", create_pojects);
@@ -108,5 +120,14 @@ Router.put("/assigned_tasks/:id", update_assigned_tasks);
 Router.get("/project-overview/:project_id", project_overview);
 Router.delete("/edit_project/:id", edit_project);
 Router.put("/updateProj/:id", update_project);
+Router.post("/updatePassword", updateUserpassword);
+Router.get("/get_admins", get_admins);
+Router.delete("/delete_admin/:id", deleteadmins);
+Router.put("/updatePassword_admin", updateadminpasswods);
+Router.get("/admin_profile", get_admin_profile)
 
+// group 
+Router.delete("/group_delete/:selectedGroup", delete_groupe);
+Router.get("/groups/:selectedGroup", get_group);
+Router.put("/update_groups/:selectedGroup", edit_group)
 export default Router;

@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.user_project_controller = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const mongoose_1 = __importDefault(require("mongoose"));
+const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_schema");
 const user_project_controller = async (modules) => {
     return {
         user_assigned_projects: async (id) => {
@@ -37,22 +39,28 @@ const user_project_controller = async (modules) => {
         },
         add_sub_tasks_emp: async (employee_proj_tasks, emp_id) => {
             // console.log(employee_proj_tasks, emp_id);
-            let exist = await modules.findOneAndUpdate({
-                task_id: employee_proj_tasks.task_id,
-                // user_id: employee_proj_tasks.user_id,
-            }, {
-                $set: {
-                    user_id: emp_id,
+            try {
+                let exist = await modules.findOneAndUpdate({
                     task_id: employee_proj_tasks.task_id,
-                    project_id: employee_proj_tasks.project_id,
-                    user_subTaks: employee_proj_tasks.user_subTaks,
-                },
-            }, {
-                upsert: true,
-                new: true,
-                runValidators: true,
-            });
-            console.log(exist);
+                    // user_id: employee_proj_tasks.user_id,
+                }, {
+                    $set: {
+                        user_id: emp_id,
+                        task_id: employee_proj_tasks.task_id,
+                        project_id: employee_proj_tasks.project_id,
+                        user_subTaks: employee_proj_tasks.user_subTaks,
+                    },
+                }, {
+                    upsert: true,
+                    new: true,
+                    runValidators: true,
+                });
+                if (exist)
+                    return { message: "todo list updated successfully" };
+            }
+            catch (error) {
+                return error;
+            }
             // if (exist) {
             // console.log(exist);
             // }
@@ -81,6 +89,57 @@ const user_project_controller = async (modules) => {
             let ids = datas.id;
             let data = await modules.find({ _id: ids });
             return data;
+        },
+        employeeList: async (id) => {
+            let check_emp = await admin_roles_schema_1.admin_roles_models.find({
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            });
+            let employeeList = await modules.find({});
+            console.log("role", check_emp.length);
+            if (check_emp.length == 0) {
+                // check_emp = await admin_roles_models.find({});
+                // let combain_emp = employeeList.concat(check_emp);
+                console.log("emp");
+                return employeeList;
+                // return combain_emp;
+            }
+            else if (check_emp.length == 1) {
+                console.log("head");
+                check_emp = await admin_roles_schema_1.admin_roles_models.find({});
+                let combain_emp = employeeList.concat(check_emp);
+                return combain_emp;
+                // employeeList = await modules.find({});
+                // return employeeList;
+            }
+        },
+        create_grp: async (group_data) => {
+            let members = group_data.members;
+            // console.log(typeof members[0]);
+            let data = new modules({
+                groupName: group_data.name,
+                members,
+                groupAdmin: group_data.createdBy,
+            });
+            let group_ = await data.save();
+            return group_;
+        },
+        emp_included: async (id) => {
+            // console.log("function called");
+            let groups = await modules.find({
+                members: new mongoose_1.default.Types.ObjectId(id),
+            });
+            console.log("data", groups);
+            return groups;
+        },
+        delete_message: async (id, sender) => {
+            let encodedjwt = sender;
+            console.log("this form delete msg function socket.io", id, sender);
+            let userId = jsonwebtoken_1.default.verify(encodedjwt, "secret_key");
+            let msgdelete = await modules.findByIdAndDelete({
+                _id: new mongoose_1.default.Types.ObjectId(id),
+                sender: userId.id,
+            });
+            return msgdelete;
         },
     };
 };

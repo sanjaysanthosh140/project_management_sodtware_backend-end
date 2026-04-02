@@ -1,18 +1,23 @@
 import mongoose, { Schema } from "mongoose";
 
 interface IDailyReports {
+  userID: string;
+  username: string;
   date: string;
-  title: string;
   desc: string;
   deptId: string;
 }
 
 const daily_reports_schema = new Schema({
-  date: {
+  userID: {
     require: true,
     type: String,
   },
-  title: {
+  username: {
+    require: true,
+    type: String,
+  },
+  date: {
     require: true,
     type: String,
   },

@@ -18,14 +18,14 @@ const user_subTasks_schema = new Schema({
     type: String,
     required: true,
   },
-  status: {
-    type: String,
-    required: true,
+  status: {                                                           
+    type: String,               
+    required: true,                                                                                         
   },
   title: {
-    type: String,
-    required: true,
-  },
+    type: String,                                
+    required: true,                                           
+  },                                 
   todo_id: {
     type: String,
     required: true,

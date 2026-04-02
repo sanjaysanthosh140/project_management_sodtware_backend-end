@@ -1,11 +1,44 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.adminCrudFunctions = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const mongoose_1 = require("mongoose");
+const mongoose_1 = __importStar(require("mongoose"));
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const adminCrudFunctions = (modules) => {
     return {
@@ -131,7 +164,9 @@ const adminCrudFunctions = (modules) => {
             }
         },
         retriveLogs: async (id) => {
-            let data = await modules.aggregate([
+            //attendance
+            let data = await modules
+                .aggregate([
                 // { $project: { first: { $arrayElemAt: ["$logs.firstnoon", 0], } , second: { $arrayElemAt: ["$logs.secondnoon", 0], } } }
                 {
                     $lookup: {
@@ -149,25 +184,55 @@ const adminCrudFunctions = (modules) => {
                         users: { $arrayElemAt: ["$attendance", 0] },
                     },
                 },
-            ]);
+            ])
+                .sort({ "data.date": 1 });
             console.log(data);
             return data;
         },
-        DailyReports: async (title, desc, deptId, type, date) => {
+        DailyReports: async (userID, username, desc, deptId, type, date) => {
+            console.log(username);
             let repoObj = new modules({
-                title,
+                userID,
+                username,
+                date,
                 desc,
                 deptId,
-                type,
-                date,
             });
             let repoData = await repoObj.save();
-            // console.log(repoData);
+            console.log(repoData);
             return repoData;
         },
         readReports: async () => {
-            let data = await modules.find();
+            let data = await modules.find({}).sort({ date: -1 });
             return data;
+        },
+        daily_report_edit: async (user_id, id, report) => {
+            try {
+                console.log(id);
+                let data = await modules.findOneAndUpdate({ _id: new mongoose_1.default.Types.ObjectId(id), userID: user_id }, { desc: report.desc });
+                console.log(data);
+                return data;
+                // let data = await modules.findById({_id:new mongoose.Types.ObjectId(id),userID:user_id});
+                // console.log(data);
+            }
+            catch (error) {
+                console.log(error);
+                return error;
+            }
+        },
+        daily_report_delete: async (id, user_id) => {
+            try {
+                console.log(id, user_id);
+                let data = await modules.findByIdAndDelete({
+                    _id: new mongoose_1.default.Types.ObjectId(id),
+                    userID: user_id,
+                });
+                console.log(data);
+                return data;
+            }
+            catch (error) {
+                console.log(error);
+            }
         },
         departmentProjects: async (head_id, projectData) => {
             let { title, description, deadline, priority, teamMembers, todos } = projectData;
@@ -348,6 +413,48 @@ const adminCrudFunctions = (modules) => {
             let data = await modules.find({});
             return data;
         },
+        update_credentails: async (data) => {
+            console.log(data.email);
+            let salt = bcrypt_1.default.genSaltSync(10);
+            let password = data.newPassword;
+            let hash = bcrypt_1.default.hashSync(password, salt);
+            // console.log("pass", hash);
+            let updated_credentails = await modules.findOneAndUpdate({ email: data.email }, {
+                password: hash,
+            }, {
+                new: true,
+            });
+            console.log(updated_credentails);
+            return updated_credentails;
+        },
+        get_admins: async () => {
+            let data = await modules.find();
+            return data;
+        },
+        get_admin_profile: async (id) => {
+            let profile = await modules.find({ _id: id });
+            console.log(profile);
+            return profile;
+        },
+        delete_group: async (id) => {
+            let deleted = await modules.findByIdAndDelete({ _id: new mongoose_1.default.Types.ObjectId(id) });
+            return deleted;
+        },
+        get_group: async (id) => {
+            let group_data = await modules.find({ _id: new mongoose_1.default.Types.ObjectId(id) });
+            return group_data;
+        },
+        update_groups: async (id, data) => {
+            console.log(id, data);
+            let update_group = await modules.findByIdAndUpdate({
+                _id: new mongoose_1.default.Types.ObjectId(id)
+            }, {
+                groupName: data.name,
+                members: data.members,
+            });
+            console.log(update_group);
+            return update_group;
+        }
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

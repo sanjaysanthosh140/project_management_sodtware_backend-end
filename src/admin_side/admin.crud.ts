@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import mongoose, { Types } from "mongoose";
+import mongoose, { mongo, Types } from "mongoose";
 import user_model from "../db_controllers/db_models/user_schema";
 interface IteamMembers {
   userId: string;
@@ -88,7 +88,7 @@ export const adminCrudFunctions = (modules: any) => {
         active: active,
       });
       let data = await model.save();
-      return data.name
+      return data.name;
     },
 
     updateEmployess: async (
@@ -212,53 +212,86 @@ export const adminCrudFunctions = (modules: any) => {
     },
 
     retriveLogs: async (id: string) => {
-      let data = await modules.aggregate([
-        // { $project: { first: { $arrayElemAt: ["$logs.firstnoon", 0], } , second: { $arrayElemAt: ["$logs.secondnoon", 0], } } }
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "attendance",
+      //attendance
+      let data = await modules
+        .aggregate([
+          // { $project: { first: { $arrayElemAt: ["$logs.firstnoon", 0], } , second: { $arrayElemAt: ["$logs.secondnoon", 0], } } }
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "attendance",
+            },
           },
-        },
 
-        {
-          $project: {
-            date: 1,
-            first: { $arrayElemAt: ["$logs.firstnoon", 0] },
-            second: { $arrayElemAt: ["$logs.secondnoon", 0] },
-            users: { $arrayElemAt: ["$attendance", 0] },
+          {
+            $project: {
+              date: 1,
+              first: { $arrayElemAt: ["$logs.firstnoon", 0] },
+              second: { $arrayElemAt: ["$logs.secondnoon", 0] },
+              users: { $arrayElemAt: ["$attendance", 0] },
+            },
           },
-        },
-      ]);
+        ])
+        .sort({ "data.date": 1 });
       console.log(data);
       return data;
     },
 
     DailyReports: async (
-      title: string,
+      userID: string,
+      username: string,
       desc: string,
       deptId: string,
       type: string,
       date: string,
     ) => {
+      console.log(username);
       let repoObj = new modules({
-        title,
+        userID,
+        username,
+        date,
         desc,
         deptId,
-        type,
-        date,
       });
       let repoData = await repoObj.save();
-      // console.log(repoData);
+      console.log(repoData);
       return repoData;
     },
     readReports: async () => {
-      let data = await modules.find();
+      let data = await modules.find({}).sort({ date: -1 });
       return data;
     },
-
+    daily_report_edit: async (user_id: string, id: string, report: any) => {
+      try {
+        console.log(id);
+        let data = await modules.findOneAndUpdate(
+          { _id: new mongoose.Types.ObjectId(id), userID: user_id },
+          { desc: report.desc },
+        );
+        console.log(data);
+        return data;
+        // let data = await modules.findById({_id:new mongoose.Types.ObjectId(id),userID:user_id});
+        // console.log(data);
+      } catch (error) {
+        console.log(error);
+        return error;
+      }
+    },
+    daily_report_delete: async (id: string, user_id: string) => {
+      try {
+        console.log(id, user_id);
+        let data = await modules.findByIdAndDelete({
+          _id: new mongoose.Types.ObjectId(id),
+          userID: user_id,
+        });
+        console.log(data);
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
     departmentProjects: async (
       head_id: string | any,
       projectData: Iproject,
@@ -410,7 +443,7 @@ export const adminCrudFunctions = (modules: any) => {
           },
         },
         // {
-          // $unwind: "$sub_tasks",
+        // $unwind: "$sub_tasks",
         // },
 
         {
@@ -457,5 +490,55 @@ export const adminCrudFunctions = (modules: any) => {
       let data = await modules.find({});
       return data;
     },
+
+    update_credentails: async (data: any) => {
+      console.log(data.email);
+      let salt: any = bcrypt.genSaltSync(10);
+      let password = data.newPassword;
+      let hash = bcrypt.hashSync(password, salt);
+      // console.log("pass", hash);
+      let updated_credentails = await modules.findOneAndUpdate(
+        { email: data.email },
+        {
+          password: hash,
+        },
+        {
+          new: true,
+        },
+      );
+      console.log(updated_credentails);
+      return updated_credentails;
+    },
+
+    get_admins: async () => {
+      let data = await modules.find();
+      return data;
+    },
+    get_admin_profile: async (id: any) => {
+      let profile = await modules.find({ _id: id });
+      console.log(profile);
+      return profile;
+    },
+    delete_group: async (id: string) => {
+      let deleted = await modules.findByIdAndDelete({ _id: new mongoose.Types.ObjectId(id) });
+      return deleted;
+    },
+    get_group: async (id: string) => {
+      let group_data = await modules.find({ _id: new mongoose.Types.ObjectId(id) });
+
+      return group_data;
+    },
+
+    update_groups: async (id: string, data: any) => {
+      console.log(id, data);
+      let update_group = await modules.findByIdAndUpdate({
+        _id: new mongoose.Types.ObjectId(id)
+      }, {
+        groupName: data.name,
+        members: data.members,
+      })
+      console.log(update_group);
+      return update_group;
+    }
   };
 };

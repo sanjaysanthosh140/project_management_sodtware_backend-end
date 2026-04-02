@@ -3,13 +3,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.employee_profile = exports.achive_todo_list = exports.add_multiple_todos = exports.emp_proj_tasks = exports.emp_included_proj = void 0;
+exports.delete_msg = exports.get_included_grp = exports.new_group = exports.get_employees = exports.getchatbox = exports.employee_profile = exports.achive_todo_list = exports.add_multiple_todos = exports.emp_proj_tasks = exports.emp_included_proj = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_controller_1 = require("./user_controller");
 const department_projects_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_projects"));
 const assigen_tasks_1 = __importDefault(require("../db_controllers/db_models/admin_side/assigen-tasks"));
 const user_tasks_todo_1 = __importDefault(require("../db_controllers/db_models/user_side/user_tasks_todo"));
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
+const socket_io_message_schema_1 = __importDefault(require("../db_controllers/db_models/user_side/socket.io.message_schema"));
+const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
 const emp_included_proj = async (req, res, next) => {
     try {
         let id = req.headers.authorization;
@@ -46,7 +48,15 @@ const add_multiple_todos = async (req, res, next) => {
         let emp_id = jsonwebtoken_1.default.verify(emp_ids, "secret_key");
         // console.log(employeeTodo);
         let employee_sub_tasks = await (0, user_controller_1.user_project_controller)(user_tasks_todo_1.default);
-        let add_sub_taks = await employee_sub_tasks.add_sub_tasks_emp(employeeTodo, emp_id.id);
+        let add_sub_taks = await employee_sub_tasks
+            .add_sub_tasks_emp(employeeTodo, emp_id.id)
+            .catch((error) => {
+            res
+                .status(500)
+                .json({ message: "internal server error", error: error });
+        });
+        if (add_sub_taks)
+            res.status(200).json({ message: add_sub_taks });
     }
     catch (error) {
         return error;
@@ -80,3 +90,51 @@ const employee_profile = async (req, res, next) => {
     }
 };
 exports.employee_profile = employee_profile;
+const getchatbox = async (req, res, next) => {
+    let dep = req.params.roomType;
+    console.log("type", dep);
+    let deparment_chats = await socket_io_message_schema_1.default
+        .find({ department: dep, group: dep })
+        .sort({ createdAt: 1 })
+        .populate("sender", "name");
+    console.log(deparment_chats);
+    res.status(200).send(deparment_chats);
+};
+exports.getchatbox = getchatbox;
+const get_employees = async (req, res, next) => {
+    let encodedjwt = req.headers.authorization;
+    let decodedid = jsonwebtoken_1.default.verify(encodedjwt, "secret_key");
+    let employeelist = await (0, user_controller_1.user_project_controller)(user_schema_1.default);
+    let users = await employeelist.employeeList(decodedid.id);
+    res.status(200).json(users);
+};
+exports.get_employees = get_employees;
+const new_group = async (req, res, next) => {
+    // console.log(req.body);
+    let group_data = req.body;
+    let new_group_create = await (0, user_controller_1.user_project_controller)(scoket_io_group_schema_1.group_model);
+    let grp_created = await new_group_create.create_grp(group_data);
+    res.status(200).json(grp_created);
+};
+exports.new_group = new_group;
+const get_included_grp = async (req, res, next) => {
+    console.log(req.headers.authorization, "from included_grp");
+    let encodedjwt = req.headers.authorization;
+    let decodedid = jsonwebtoken_1.default.verify(encodedjwt, "secret_key");
+    let id = decodedid.id;
+    let groups = await (0, user_controller_1.user_project_controller)(scoket_io_group_schema_1.group_model);
+    let included_grp = await groups.emp_included(id);
+    res.status(200).json(included_grp);
+};
+exports.get_included_grp = get_included_grp;
+const delete_msg = async (req, res, next) => {
+    let msgId = req.params.msgId;
+    console.log(msgId);
+    let encodedjwt = req.headers.authorization;
+    let decodeId = jsonwebtoken_1.default.verify(encodedjwt, "secret_key");
+    let delete_msg = await (0, user_controller_1.user_project_controller)(socket_io_message_schema_1.default);
+    //  let delete_one = await delete_msg.delete_message(msgId, decodeId.id);
+    // console.log(delete_one);
+    // res.status(200).json({ message: "message deleted" });
+};
+exports.delete_msg = delete_msg;

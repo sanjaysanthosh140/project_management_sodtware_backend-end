@@ -62,4 +62,9 @@ Router.get("/emp_proj-tasks/:projectId", user_Proj_controller_1.emp_proj_tasks);
 Router.post("/add_multiple_todos", user_Proj_controller_1.add_multiple_todos);
 Router.get("/achive_created_todo_list", user_Proj_controller_1.achive_todo_list);
 Router.get("/employee_profile", user_Proj_controller_1.employee_profile);
+Router.get("/messages/:roomType", user_Proj_controller_1.getchatbox);
+Router.get("/employeelists", user_Proj_controller_1.get_employees);
+Router.post("/groups/create", user_Proj_controller_1.new_group);
+Router.get("/groups/user", user_Proj_controller_1.get_included_grp);
+// Router.delete("/messages/:msgId",delete_msg)
 exports.default = Router;

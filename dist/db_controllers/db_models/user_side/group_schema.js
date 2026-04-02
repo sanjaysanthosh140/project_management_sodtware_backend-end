@@ -34,27 +34,22 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const daily_reports_schema = new mongoose_1.Schema({
-    userID: {
-        require: true,
+const groupSchema = new mongoose_1.Schema({
+    name: {
         type: String,
+        required: true,
+        trim: true
     },
-    username: {
-        require: true,
-        type: String,
-    },
-    date: {
-        require: true,
-        type: String,
-    },
-    desc: {
-        require: true,
-        type: String,
-    },
-    deptId: {
-        require: true,
-        type: String,
-    },
-});
-const DailyReportsModel = mongoose_1.default.model("DailyReports", daily_reports_schema);
-exports.default = DailyReportsModel;
+    members: [{
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "users",
+            required: true
+        }],
+    createdBy: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "users",
+        required: true
+    }
+}, { timestamps: true });
+const GroupModel = mongoose_1.default.model("group", groupSchema);
+exports.default = GroupModel;

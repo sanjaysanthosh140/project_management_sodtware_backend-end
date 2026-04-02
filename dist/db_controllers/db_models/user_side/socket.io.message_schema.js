@@ -34,27 +34,53 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const daily_reports_schema = new mongoose_1.Schema({
-    userID: {
-        require: true,
+const message_schemas = new mongoose_1.Schema({
+    sender: {
         type: String,
+        required: true,
     },
-    username: {
-        require: true,
+    name: {
         type: String,
+        required: true,
     },
-    date: {
-        require: true,
+    message: {
         type: String,
+        required: true,
     },
-    desc: {
-        require: true,
+    chatType: {
         type: String,
+        enum: ["department", "group"],
+        required: true,
     },
-    deptId: {
-        require: true,
+    department: {
         type: String,
+        default: null,
+        validate: {
+            validator: function (v) {
+                if (this.chatType === "department")
+                    return !!v;
+                return true;
+            },
+            message: "plz provide deparment name"
+        }
     },
-});
-const DailyReportsModel = mongoose_1.default.model("DailyReports", daily_reports_schema);
-exports.default = DailyReportsModel;
+    group: {
+        type: String,
+        ref: "Group",
+        default: null,
+        validate: {
+            validator: function (v) {
+                if (this.chatType === "group")
+                    return !!v;
+                return true;
+            },
+            message: "plz provide group id"
+        }
+    },
+    time: {
+        type: String,
+        required: true,
+    },
+}, { timestamps: true });
+const message_model = mongoose_1.default.model("messages", message_schemas);
+exports.default = message_model;

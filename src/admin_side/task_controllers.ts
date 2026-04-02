@@ -10,6 +10,7 @@ import DailyReportsModel from "../db_controllers/db_models/task_schemas/Daily_re
 import departmentProjectsModle from "../db_controllers/db_models/admin_side/department_projects";
 import { admin_roles_models } from "../db_controllers/db_models/admin_roles_schema";
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
+import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
 interface IDecodeToken {
   id: string;
   iat: number;
@@ -204,11 +205,16 @@ export const work_Reports = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { title, desc, deptId, type, date } = req.body;
-  // console.log(title, desc, deptId, type, date);
+  const { username, desc, deptId, type, date } = await req.body;
+  let token: any = req.headers.authorization;
+  let decodedToken: any = jwt.verify(token, "secret_key");
+
+  //  console.log(name,desc, deptId, type, date,decodedToken);
+  //  console.log("repo",username);
   const workReports = adminCrudFunctions(DailyReportsModel);
   let Dailyrepo = await workReports.DailyReports(
-    title,
+    decodedToken.id,
+    username,
     desc,
     deptId,
     type,
@@ -219,6 +225,41 @@ export const work_Reports = async (
   res.status(200).json({ msg: "report added successfully" });
 };
 
+export const edit_daily_report = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let id = req.params.editingId;
+  let report = req.body;
+  let encodedjwt: any = req.headers.authorization;
+  let decoded: any = jwt.verify(encodedjwt, "secret_key");
+  const edit_reports = adminCrudFunctions(DailyReportsModel);
+  console.log("update", id);
+  let updated_datas = await edit_reports
+    .daily_report_edit(decoded.id, id, report)
+    .catch((error) => {
+      res.status(503).json({ message: "server unavailable", error });
+    });
+  if (updated_datas) res.status(200).json({ mesage: "updated success fully" });
+};
+export const delete_daily_report = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let id = req.params.id;
+  let encodedjwt: any = req.headers.authorization;
+  let decoded: any = jwt.verify(encodedjwt, "secret_key");
+  const delete_report = adminCrudFunctions(DailyReportsModel);
+  const deleted_one = await delete_report
+    .daily_report_delete(id, decoded.id)
+    .catch((error) => {
+      res.status(503).json({ message: "server unavailable", error });
+    });
+  if (deleted_one)
+    res.send(200).json({ message: "subtask deleted successfully" });
+};
 export const read_reports = async (
   req: Request,
   res: Response,
@@ -374,3 +415,105 @@ export const hr_projects_progress = async (
     res.status(500).send({ message: "internal-server-error" });
   }
 };
+
+export const updateUserpassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let user_credentials = req.body;
+  const updated_user_pass = adminCrudFunctions(user_model);
+  const credentials =
+    await updated_user_pass.update_credentails(user_credentials);
+  console.log("updated", credentials);
+  res
+    .status(200)
+    .json({ message: `${credentials.name} password successfully` });
+};
+
+export const get_admins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const get_resposnse = adminCrudFunctions(admin_roles_models);
+  const response = await get_resposnse.get_admins();
+  console.log(response);
+  res.status(200).json(response);
+};
+
+export const deleteadmins = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const id = req.params.id;
+  let delete_admins = adminCrudFunctions(admin_roles_models);
+  let resposne = await delete_admins.deleteEmploye(id);
+  console.log(resposne);
+  res.status(200).json({ message: `Admin ${resposne} deleted successfully` });
+};
+
+export const updateadminpasswods = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let admin_credentials = req.body;
+  const updated_admins_pass = adminCrudFunctions(admin_roles_models);
+  const credentials =
+    await updated_admins_pass.update_credentails(admin_credentials);
+  console.log("updated", credentials);
+  res
+    .status(200)
+    .json({ message: `${credentials.name} password successfully` });
+};
+
+export const get_admin_profile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let encodedToken: any = req.headers.authorization;
+  let decodedid: any = jwt.verify(encodedToken, "secret_key");
+  const admin_profile = adminCrudFunctions(admin_roles_models);
+  const profile = await admin_profile.get_admin_profile(decodedid.id);
+  res.status(200).json(profile);
+};
+
+export const delete_groupe = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let id = req.params.selectedGroup;
+  let delete_group = adminCrudFunctions(group_model);
+  let deleted = await delete_group.delete_group(id);
+  // console.log("after", deleted);
+  res.status(200).json({ message: "group deleted successfully" });
+}
+
+export const get_group = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let id = req.params.selectedGroup;
+  // console.log(id);
+  let get_group = adminCrudFunctions(group_model);
+  let group = await get_group.get_group(id);
+  // console.log("group", group);
+  res.status(200).json(group);
+}
+
+
+export const edit_group = async (req: Request, res: Response, next: NextFunction) => {
+  let id = req.params.selectedGroup
+  let group_data = req.body;
+  let updated_group = adminCrudFunctions(group_model);
+  let updates = await updated_group.update_groups(id, group_data);
+  if (updates) {
+    res.status(200).json({ message: "updated successfully" })
+  }
+
+}
