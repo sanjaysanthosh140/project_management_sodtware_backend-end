@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = exports.server = exports.io = void 0;
 const socket_io_1 = require("socket.io");
 const express_1 = __importDefault(require("express"));
-const https_1 = __importDefault(require("https"));
+const http_1 = __importDefault(require("http"));
 const socket_io_messages_1 = require("../db_controllers/socket.io.chat_controllers/socket.io.messages");
 const socket_io_message_schema_1 = __importDefault(require("../db_controllers/db_models/user_side/socket.io.message_schema"));
 const user_controller_1 = require("./user_controller");
 const app = (0, express_1.default)();
 exports.app = app;
-const server = https_1.default.createServer(app);
+const server = http_1.default.createServer(app);
 exports.server = server;
 const io = new socket_io_1.Server(server, {
     cors: {
