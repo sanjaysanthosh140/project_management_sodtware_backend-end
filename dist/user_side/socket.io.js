@@ -16,7 +16,7 @@ const server = http_1.default.createServer(app);
 exports.server = server;
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: "https://alkor-e2e89.web.app",
+        origin: ["https://alkor-e2e89.web.app", "http://localhost:5173"],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
