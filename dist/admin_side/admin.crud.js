@@ -409,6 +409,12 @@ const adminCrudFunctions = (modules) => {
             console.log(updated);
             return updated;
         },
+        delete_project: async (id) => {
+            let data = await modules.findByIdAndDelete({
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            });
+            return data;
+        },
         hr_proj_progress: async () => {
             let data = await modules.find({});
             return data;
@@ -437,24 +443,28 @@ const adminCrudFunctions = (modules) => {
             return profile;
         },
         delete_group: async (id) => {
-            let deleted = await modules.findByIdAndDelete({ _id: new mongoose_1.default.Types.ObjectId(id) });
+            let deleted = await modules.findByIdAndDelete({
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            });
             return deleted;
         },
         get_group: async (id) => {
-            let group_data = await modules.find({ _id: new mongoose_1.default.Types.ObjectId(id) });
+            let group_data = await modules.find({
+                _id: new mongoose_1.default.Types.ObjectId(id),
+            });
             return group_data;
         },
         update_groups: async (id, data) => {
             console.log(id, data);
             let update_group = await modules.findByIdAndUpdate({
-                _id: new mongoose_1.default.Types.ObjectId(id)
+                _id: new mongoose_1.default.Types.ObjectId(id),
             }, {
                 groupName: data.name,
                 members: data.members,
             });
             console.log(update_group);
             return update_group;
-        }
+        },
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

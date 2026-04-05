@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -267,6 +267,20 @@ const update_project = async (req, res, next) => {
     }
 };
 exports.update_project = update_project;
+const delete_project = async (req, res, next) => {
+    try {
+        let id = req.params.id;
+        console.log(id);
+        const delete_project = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
+        const deleted_proj = await delete_project.delete_project(id);
+        console.log(deleted_proj);
+        res.status(200).json({ message: "deleted successfully" });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.delete_project = delete_project;
 const hr_projects_progress = async (req, res, next) => {
     try {
         const hrProjectsProgress = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);

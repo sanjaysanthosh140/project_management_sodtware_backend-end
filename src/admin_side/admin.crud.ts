@@ -486,6 +486,13 @@ export const adminCrudFunctions = (modules: any) => {
       console.log(updated);
       return updated;
     },
+
+    delete_project: async (id: string) => {
+      let data = await modules.findByIdAndDelete({
+        _id: new mongoose.Types.ObjectId(id),
+      });
+      return data;
+    },
     hr_proj_progress: async () => {
       let data = await modules.find({});
       return data;
@@ -520,25 +527,32 @@ export const adminCrudFunctions = (modules: any) => {
       return profile;
     },
     delete_group: async (id: string) => {
-      let deleted = await modules.findByIdAndDelete({ _id: new mongoose.Types.ObjectId(id) });
+      let deleted = await modules.findByIdAndDelete({
+        _id: new mongoose.Types.ObjectId(id),
+      });
       return deleted;
     },
     get_group: async (id: string) => {
-      let group_data = await modules.find({ _id: new mongoose.Types.ObjectId(id) });
+      let group_data = await modules.find({
+        _id: new mongoose.Types.ObjectId(id),
+      });
 
       return group_data;
     },
 
     update_groups: async (id: string, data: any) => {
       console.log(id, data);
-      let update_group = await modules.findByIdAndUpdate({
-        _id: new mongoose.Types.ObjectId(id)
-      }, {
-        groupName: data.name,
-        members: data.members,
-      })
+      let update_group = await modules.findByIdAndUpdate(
+        {
+          _id: new mongoose.Types.ObjectId(id),
+        },
+        {
+          groupName: data.name,
+          members: data.members,
+        },
+      );
       console.log(update_group);
       return update_group;
-    }
+    },
   };
 };

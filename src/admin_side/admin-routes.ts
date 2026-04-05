@@ -16,6 +16,7 @@ import {
   createDepartments,
   delete_daily_report,
   delete_groupe,
+  delete_project,
   deleteadmins,
   deleteDepartments,
   deleteEmploye,
@@ -125,6 +126,7 @@ Router.get("/get_admins", get_admins);
 Router.delete("/delete_admin/:id", deleteadmins);
 Router.put("/updatePassword_admin", updateadminpasswods);
 Router.get("/admin_profile", get_admin_profile)
+Router.delete("/delete_proj/:id",delete_project)
 
 // group 
 Router.delete("/group_delete/:selectedGroup", delete_groupe);

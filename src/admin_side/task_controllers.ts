@@ -401,6 +401,22 @@ export const update_project = async (
   }
 };
 
+export const delete_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let id = req.params.id;
+    console.log(id);
+    const delete_project = adminCrudFunctions(departmentProjectsModle);
+    const deleted_proj = await delete_project.delete_project(id);
+    console.log(deleted_proj);
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const hr_projects_progress = async (
   req: Request,
   res: Response,
@@ -484,19 +500,19 @@ export const get_admin_profile = async (
 export const delete_groupe = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let id = req.params.selectedGroup;
   let delete_group = adminCrudFunctions(group_model);
   let deleted = await delete_group.delete_group(id);
   // console.log("after", deleted);
   res.status(200).json({ message: "group deleted successfully" });
-}
+};
 
 export const get_group = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let id = req.params.selectedGroup;
   // console.log(id);
@@ -504,16 +520,18 @@ export const get_group = async (
   let group = await get_group.get_group(id);
   // console.log("group", group);
   res.status(200).json(group);
-}
+};
 
-
-export const edit_group = async (req: Request, res: Response, next: NextFunction) => {
-  let id = req.params.selectedGroup
+export const edit_group = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let id = req.params.selectedGroup;
   let group_data = req.body;
   let updated_group = adminCrudFunctions(group_model);
   let updates = await updated_group.update_groups(id, group_data);
   if (updates) {
-    res.status(200).json({ message: "updated successfully" })
+    res.status(200).json({ message: "updated successfully" });
   }
-
-}
+};

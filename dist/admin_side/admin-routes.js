@@ -87,6 +87,7 @@ Router.get("/get_admins", task_controllers_1.get_admins);
 Router.delete("/delete_admin/:id", task_controllers_1.deleteadmins);
 Router.put("/updatePassword_admin", task_controllers_1.updateadminpasswods);
 Router.get("/admin_profile", task_controllers_1.get_admin_profile);
+Router.delete("/delete_proj/:id", task_controllers_1.delete_project);
 // group 
 Router.delete("/group_delete/:selectedGroup", task_controllers_1.delete_groupe);
 Router.get("/groups/:selectedGroup", task_controllers_1.get_group);
