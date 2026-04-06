@@ -8,7 +8,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://alkor-9606a.web.app","http://localhost:5173"],
+    origin: ["https://alkor-9606a.web.app","http://localhost:5173","https://alkor-9606a.firebaseapp.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
