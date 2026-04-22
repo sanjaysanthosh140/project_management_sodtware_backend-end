@@ -233,8 +233,19 @@ export const adminCrudFunctions = (modules: any) => {
               users: { $arrayElemAt: ["$attendance", 0] },
             },
           },
+          {
+            $project: {
+              log: 0
+            },
+          },
+          {
+            $sort: {
+              date: -1
+            }
+          }
+
         ])
-        .sort({ "data.date": 1 });
+      // .sort({ "data.date": 1 });
       console.log(data);
       return data;
     },

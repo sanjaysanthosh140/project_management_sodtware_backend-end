@@ -184,8 +184,18 @@ const adminCrudFunctions = (modules) => {
                         users: { $arrayElemAt: ["$attendance", 0] },
                     },
                 },
-            ])
-                .sort({ "data.date": 1 });
+                {
+                    $project: {
+                        log: 0
+                    },
+                },
+                {
+                    $sort: {
+                        date: -1
+                    }
+                }
+            ]);
+            // .sort({ "data.date": 1 });
             console.log(data);
             return data;
         },
