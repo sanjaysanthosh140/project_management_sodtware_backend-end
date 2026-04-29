@@ -18,13 +18,21 @@ export const emp_included_proj = async (
   next: NextFunction,
 ) => {
   try {
-    let id: any = req.headers.authorization;
-    let decodedToken: any = await jwt.verify(id, "secret_key");
+    const selectedEmployeeId = req.query.empId as string | undefined;
+    let targetEmployeeId = selectedEmployeeId;
+    if (!targetEmployeeId) {
+      let id: any = req.headers.authorization;
+      let decodedToken: any = await jwt.verify(id, "secret_key");
+      targetEmployeeId = decodedToken.id;
+    }
+    if (!targetEmployeeId) {
+      return res.status(400).json({ message: "employee id is required" });
+    }
     let employee_assigned_proj = await user_project_controller(
       departmentProjectsModle,
     );
     let user_assigned_proj =
-      await employee_assigned_proj.user_assigned_projects(decodedToken.id);
+      await employee_assigned_proj.user_assigned_projects(targetEmployeeId);
     res.status(200).json(user_assigned_proj);
   } catch (error) {
     return next(error);
@@ -38,13 +46,21 @@ export const emp_proj_tasks = async (
 ) => {
   try {
     let id: any = req.params.projectId;
-    let decodedToken: any = req.headers.authorization;
-    let encodedToken: any = jwt.verify(decodedToken, "secret_key");
+    const selectedEmployeeId = req.query.empId as string | undefined;
+    let targetEmployeeId = selectedEmployeeId;
+    if (!targetEmployeeId) {
+      let decodedToken: any = req.headers.authorization;
+      let encodedToken: any = jwt.verify(decodedToken, "secret_key");
+      targetEmployeeId = encodedToken.id;
+    }
+    if (!targetEmployeeId) {
+      return res.status(400).json({ message: "employee id is required" });
+    }
     // console.log("proj_id", id, "emp_id", encodedToken.id);
     let assigned_tasks_for_emp =
       await user_project_controller(assignedTasksModel);
     let employe_proj_tasks =
-      await assigned_tasks_for_emp.employee_assigned_tasks(encodedToken.id, id);
+      await assigned_tasks_for_emp.employee_assigned_tasks(targetEmployeeId, id);
     console.log(employe_proj_tasks);
     res.status(200).json(employe_proj_tasks);
   } catch (error) {
@@ -82,10 +98,15 @@ export const achive_todo_list = async (
   next: NextFunction,
 ) => {
   try {
-    let id: any = req.headers.authorization;
-    let emp_id: any = jwt.verify(id, "secret_key");
+    const selectedEmployeeId = req.query.empId as string | undefined;
+    let targetEmployeeId = selectedEmployeeId;
+    if (!targetEmployeeId) {
+      let id: any = req.headers.authorization;
+      let emp_id: any = jwt.verify(id, "secret_key");
+      targetEmployeeId = emp_id.id;
+    }
     let achive_todo_method = await user_project_controller(user_subTasks_todo);
-    let sub_todos = await achive_todo_method.achive_sub_tods(emp_id.id);
+    let sub_todos = await achive_todo_method.achive_sub_tods(targetEmployeeId);
     res.status(200).send(sub_todos);
   } catch (error) {
     console.log(error);
@@ -93,6 +114,7 @@ export const achive_todo_list = async (
     res.status(501).send({ message: "internal server error" });
   }
 };
+
 
 export const employee_profile = async (
   req: Request,

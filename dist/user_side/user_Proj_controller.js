@@ -14,10 +14,18 @@ const socket_io_message_schema_1 = __importDefault(require("../db_controllers/db
 const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
 const emp_included_proj = async (req, res, next) => {
     try {
-        let id = req.headers.authorization;
-        let decodedToken = await jsonwebtoken_1.default.verify(id, "secret_key");
+        const selectedEmployeeId = req.query.empId;
+        let targetEmployeeId = selectedEmployeeId;
+        if (!targetEmployeeId) {
+            let id = req.headers.authorization;
+            let decodedToken = await jsonwebtoken_1.default.verify(id, "secret_key");
+            targetEmployeeId = decodedToken.id;
+        }
+        if (!targetEmployeeId) {
+            return res.status(400).json({ message: "employee id is required" });
+        }
         let employee_assigned_proj = await (0, user_controller_1.user_project_controller)(department_projects_1.default);
-        let user_assigned_proj = await employee_assigned_proj.user_assigned_projects(decodedToken.id);
+        let user_assigned_proj = await employee_assigned_proj.user_assigned_projects(targetEmployeeId);
         res.status(200).json(user_assigned_proj);
     }
     catch (error) {
@@ -28,11 +36,19 @@ exports.emp_included_proj = emp_included_proj;
 const emp_proj_tasks = async (req, res, next) => {
     try {
         let id = req.params.projectId;
-        let decodedToken = req.headers.authorization;
-        let encodedToken = jsonwebtoken_1.default.verify(decodedToken, "secret_key");
+        const selectedEmployeeId = req.query.empId;
+        let targetEmployeeId = selectedEmployeeId;
+        if (!targetEmployeeId) {
+            let decodedToken = req.headers.authorization;
+            let encodedToken = jsonwebtoken_1.default.verify(decodedToken, "secret_key");
+            targetEmployeeId = encodedToken.id;
+        }
+        if (!targetEmployeeId) {
+            return res.status(400).json({ message: "employee id is required" });
+        }
         // console.log("proj_id", id, "emp_id", encodedToken.id);
         let assigned_tasks_for_emp = await (0, user_controller_1.user_project_controller)(assigen_tasks_1.default);
-        let employe_proj_tasks = await assigned_tasks_for_emp.employee_assigned_tasks(encodedToken.id, id);
+        let employe_proj_tasks = await assigned_tasks_for_emp.employee_assigned_tasks(targetEmployeeId, id);
         console.log(employe_proj_tasks);
         res.status(200).json(employe_proj_tasks);
     }
@@ -65,10 +81,15 @@ const add_multiple_todos = async (req, res, next) => {
 exports.add_multiple_todos = add_multiple_todos;
 const achive_todo_list = async (req, res, next) => {
     try {
-        let id = req.headers.authorization;
-        let emp_id = jsonwebtoken_1.default.verify(id, "secret_key");
+        const selectedEmployeeId = req.query.empId;
+        let targetEmployeeId = selectedEmployeeId;
+        if (!targetEmployeeId) {
+            let id = req.headers.authorization;
+            let emp_id = jsonwebtoken_1.default.verify(id, "secret_key");
+            targetEmployeeId = emp_id.id;
+        }
         let achive_todo_method = await (0, user_controller_1.user_project_controller)(user_tasks_todo_1.default);
-        let sub_todos = await achive_todo_method.achive_sub_tods(emp_id.id);
+        let sub_todos = await achive_todo_method.achive_sub_tods(targetEmployeeId);
         res.status(200).send(sub_todos);
     }
     catch (error) {
