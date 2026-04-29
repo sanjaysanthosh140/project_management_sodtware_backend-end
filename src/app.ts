@@ -10,7 +10,7 @@ let port = 8080;
 import { io, server, app } from "./user_side/socket.io"
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://alkor-9606a.web.app","https://alkor-9606a.firebaseapp.com"],
+    origin: ["http://localhost:5173", "http://localhost:5174" ,"https://alkor-9606a.web.app","https://alkor-9606a.firebaseapp.com"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true
