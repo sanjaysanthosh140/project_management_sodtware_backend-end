@@ -1,6 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 
 interface Itask {
+    headId?: string,
+    assignedDate?: string,
     deadline: string,
     desc: string,
     priority: string,
@@ -9,6 +11,14 @@ interface Itask {
 }
 
 const tasks_schema = new Schema({
+    headId: {
+        type: String,
+        require: false
+    },
+    assignedDate: {
+        type: String,
+        require: false
+    },
     deadline: {
         type: String,
         require: true

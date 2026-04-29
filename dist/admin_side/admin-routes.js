@@ -78,6 +78,11 @@ Router.get("/headProj", task_controllers_1.Fetch_projects);
 Router.post("/assigned_tasks", task_controllers_1.assigned_tasks);
 Router.get("/check_assigned_tasks/:id", task_controllers_1.check_assigned_taks);
 Router.put("/assigned_tasks/:id", task_controllers_1.update_assigned_tasks);
+// hr-assigentasks
+Router.post("/hr_assigned_tasks", task_controllers_1.create_hr_head_task);
+Router.get("/hr_assigned_tasks", task_controllers_1.get_hr_head_tasks);
+Router.put("/hr_assigned_tasks/:id", task_controllers_1.update_hr_head_task);
+Router.delete("/hr_assigned_tasks/:id", task_controllers_1.delete_hr_head_task);
 //  projoverview
 Router.get("/project-overview/:project_id", task_controllers_1.project_overview);
 Router.delete("/edit_project/:id", task_controllers_1.edit_project);

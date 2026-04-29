@@ -11,6 +11,7 @@ import departmentProjectsModle from "../db_controllers/db_models/admin_side/depa
 import { admin_roles_models } from "../db_controllers/db_models/admin_roles_schema";
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
 import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
+import tasks_module_it from "../db_controllers/db_models/task_schemas/tasks_schema";
 interface IDecodeToken {
   id: string;
   iat: number;
@@ -350,7 +351,91 @@ export const update_assigned_tasks = async (
   let updated = await updates.updateassigenTasks(id, projTasks);
   res.status(200).json({ message: "Tasks updated successfully" });
 };
+export const create_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { headId, title, priority, deadline, assignedDate } = req.body;
+    const taskObj = new tasks_module_it({
+      headId,
+      title,
+      desc: title,
+      priority,
+      deadline,
+      assignedDate,
+      status: "pending",
+    });
+    const savedTask = await taskObj.save();
+    res.status(200).json(savedTask);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to create task" });
+  }
+};
 
+export const get_hr_head_tasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const headId = req.query.headId as string | undefined;
+    const tasks = headId
+      ? await tasks_module_it.find({ headId }).sort({ assignedDate: -1 })
+      : await tasks_module_it
+          .find({ headId: { $exists: true, $ne: "" } })
+          .sort({ assignedDate: -1 });
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to fetch tasks" });
+  }
+};
+
+export const update_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
+    const taskData = req.body;
+    const updatedTask = await tasks_module_it.findByIdAndUpdate(
+      id,
+      {
+        headId: taskData.headId,
+        title: taskData.title,
+        desc: taskData.title || taskData.desc,
+        priority: taskData.priority,
+        deadline: taskData.deadline,
+        assignedDate: taskData.assignedDate,
+        status: taskData.status || "pending",
+      },
+      { new: true, runValidators: true },
+    );
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to update task" });
+  }
+};
+
+export const delete_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
+    await tasks_module_it.findByIdAndDelete(id);
+    res.status(200).json({ message: "task deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to delete task" });
+  }
+};
 export const project_overview = async (
   req: Request,
   res: Response,

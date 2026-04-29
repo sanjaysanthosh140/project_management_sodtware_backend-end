@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -14,6 +14,7 @@ const department_projects_1 = __importDefault(require("../db_controllers/db_mode
 const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_schema");
 const assigen_tasks_1 = __importDefault(require("../db_controllers/db_models/admin_side/assigen-tasks"));
 const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
+const tasks_schema_1 = __importDefault(require("../db_controllers/db_models/task_schemas/tasks_schema"));
 const task_controller = (task_data, task_models) => {
     return new Promise((resolve, rejects) => {
         const task_obj = new task_models(task_data);
@@ -230,6 +231,76 @@ const update_assigned_tasks = async (req, res, next) => {
     res.status(200).json({ message: "Tasks updated successfully" });
 };
 exports.update_assigned_tasks = update_assigned_tasks;
+const create_hr_head_task = async (req, res, next) => {
+    try {
+        const { headId, title, priority, deadline, assignedDate } = req.body;
+        const taskObj = new tasks_schema_1.default({
+            headId,
+            title,
+            desc: title,
+            priority,
+            deadline,
+            assignedDate,
+            status: "pending",
+        });
+        const savedTask = await taskObj.save();
+        res.status(200).json(savedTask);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to create task" });
+    }
+};
+exports.create_hr_head_task = create_hr_head_task;
+const get_hr_head_tasks = async (req, res, next) => {
+    try {
+        const headId = req.query.headId;
+        const tasks = headId
+            ? await tasks_schema_1.default.find({ headId }).sort({ assignedDate: -1 })
+            : await tasks_schema_1.default
+                .find({ headId: { $exists: true, $ne: "" } })
+                .sort({ assignedDate: -1 });
+        res.status(200).json(tasks);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to fetch tasks" });
+    }
+};
+exports.get_hr_head_tasks = get_hr_head_tasks;
+const update_hr_head_task = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const taskData = req.body;
+        const updatedTask = await tasks_schema_1.default.findByIdAndUpdate(id, {
+            headId: taskData.headId,
+            title: taskData.title,
+            desc: taskData.title || taskData.desc,
+            priority: taskData.priority,
+            deadline: taskData.deadline,
+            assignedDate: taskData.assignedDate,
+            status: taskData.status || "pending",
+        }, { new: true, runValidators: true });
+        res.status(200).json(updatedTask);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to update task" });
+    }
+};
+exports.update_hr_head_task = update_hr_head_task;
+const delete_hr_head_task = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        await tasks_schema_1.default.findByIdAndDelete(id);
+        res.status(200).json({ message: "task deleted successfully" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to delete task" });
+    }
+};
+exports.delete_hr_head_task = delete_hr_head_task;
 const project_overview = async (req, res, next) => {
     const id = req.params.project_id;
     const projectOverview = (0, admin_crud_1.adminCrudFunctions)(assigen_tasks_1.default);

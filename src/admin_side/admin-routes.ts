@@ -12,10 +12,12 @@ import {
   availableEmployess,
   check_assigned_taks,
   create_admins,
+  create_hr_head_task,
   create_pojects,
   createDepartments,
   delete_daily_report,
   delete_groupe,
+  delete_hr_head_task,
   delete_project,
   deleteadmins,
   deleteDepartments,
@@ -30,12 +32,14 @@ import {
   get_admin_profile,
   get_admins,
   get_group,
+  get_hr_head_tasks,
   hr_projects_progress,
   project_overview,
   read_reports,
   read_tasks,
   task_controller,
   update_assigned_tasks,
+  update_hr_head_task,
   update_project,
   updateadminpasswods,
   updateAttendance,
@@ -115,7 +119,11 @@ Router.get("/headProj", Fetch_projects);
 Router.post("/assigned_tasks", assigned_tasks);
 Router.get("/check_assigned_tasks/:id", check_assigned_taks);
 Router.put("/assigned_tasks/:id", update_assigned_tasks);
-
+// hr-assigentasks
+Router.post("/hr_assigned_tasks", create_hr_head_task);
+Router.get("/hr_assigned_tasks", get_hr_head_tasks);
+Router.put("/hr_assigned_tasks/:id", update_hr_head_task);
+Router.delete("/hr_assigned_tasks/:id", delete_hr_head_task);
 
 //  projoverview
 Router.get("/project-overview/:project_id", project_overview);
