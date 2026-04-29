@@ -36,6 +36,7 @@ import {
   hr_projects_progress,
   project_overview,
   read_reports,
+  read_reports_by_employee,
   read_tasks,
   task_controller,
   update_assigned_tasks,
@@ -112,7 +113,7 @@ Router.post("/Daily_reports", work_Reports);
 Router.put("/update_report/:editingId", edit_daily_report)
 Router.delete("/delete_report/:id", delete_daily_report)
 Router.get("/reports", read_reports);
-
+Router.get("/reports/employee/:employeeId", read_reports_by_employee);
 Router.post("/create_project", create_pojects);
 Router.get("/employes", availableEmployess);
 Router.get("/headProj", Fetch_projects);

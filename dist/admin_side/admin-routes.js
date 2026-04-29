@@ -72,6 +72,7 @@ Router.post("/Daily_reports", task_controllers_1.work_Reports);
 Router.put("/update_report/:editingId", task_controllers_1.edit_daily_report);
 Router.delete("/delete_report/:id", task_controllers_1.delete_daily_report);
 Router.get("/reports", task_controllers_1.read_reports);
+Router.get("/reports/employee/:employeeId", task_controllers_1.read_reports_by_employee);
 Router.post("/create_project", task_controllers_1.create_pojects);
 Router.get("/employes", task_controllers_1.availableEmployess);
 Router.get("/headProj", task_controllers_1.Fetch_projects);

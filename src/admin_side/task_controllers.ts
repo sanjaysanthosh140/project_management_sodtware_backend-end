@@ -271,6 +271,27 @@ export const read_reports = async (
   res.status(200).json(data);
 };
 
+export const read_reports_by_employee = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const employeeId = req.params.employeeId;
+    if (!employeeId) {
+      res.status(400).json({ message: "employeeId is required" });
+      return;
+    }
+    const reports = await DailyReportsModel.find({ userID: employeeId }).sort({
+      date: -1,
+    });
+    res.status(200).json(reports);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to fetch employee reports" });
+  }
+};
+
 export const create_pojects = async (
   req: Request,
   res: Response,
