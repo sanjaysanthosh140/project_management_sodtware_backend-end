@@ -13,6 +13,7 @@ import {
   check_assigned_taks,
   create_admins,
   create_pojects,
+  create_hr_head_task,
   createDepartments,
   delete_daily_report,
   delete_groupe,
@@ -29,13 +30,17 @@ import {
   fetchUsers,
   get_admin_profile,
   get_admins,
+  get_hr_head_tasks,
   get_group,
   hr_projects_progress,
   project_overview,
   read_reports,
+  read_reports_by_employee,
   read_tasks,
   task_controller,
+  update_admin,
   update_assigned_tasks,
+  update_hr_head_task,
   update_project,
   updateadminpasswods,
   updateAttendance,
@@ -43,6 +48,10 @@ import {
   updateEmplye,
   updateUserpassword,
   work_Reports,
+  delete_hr_head_task,
+  emplyee_perfomance_data,
+  create_hybread_team,
+  create_hybread_custom_project,
 } from "./task_controllers";
 Router.post("/verify_authorization", async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -72,6 +81,7 @@ Router.post("/verify_authorization", async (req: Request, res: Response) => {
   }
 });
 
+
 Router.post("/add_task", (req: Request, res: Response) => {
   const task_Data = req.body;
   task_controller(task_Data, tasks_module_it)
@@ -94,6 +104,7 @@ Router.post("/employes", addEmploye);
 Router.delete("/deleteEmp/:id", deleteEmploye);
 Router.put("/updateEmploye/:id", updateEmplye);
 Router.post("/add_admins", create_admins);
+Router.put("/update_admin/:id", update_admin); ////
 
 //departments
 Router.post("/addDep", createDepartments);
@@ -108,6 +119,7 @@ Router.post("/Daily_reports", work_Reports);
 Router.put("/update_report/:editingId", edit_daily_report)
 Router.delete("/delete_report/:id", delete_daily_report)
 Router.get("/reports", read_reports);
+Router.get("/reports/employee/:employeeId", read_reports_by_employee);
 
 Router.post("/create_project", create_pojects);
 Router.get("/employes", availableEmployess);
@@ -115,6 +127,11 @@ Router.get("/headProj", Fetch_projects);
 Router.post("/assigned_tasks", assigned_tasks);
 Router.get("/check_assigned_tasks/:id", check_assigned_taks);
 Router.put("/assigned_tasks/:id", update_assigned_tasks);
+
+Router.post("/hr_assigned_tasks", create_hr_head_task);
+Router.get("/hr_assigned_tasks", get_hr_head_tasks);
+Router.put("/hr_assigned_tasks/:id", update_hr_head_task);
+Router.delete("/hr_assigned_tasks/:id", delete_hr_head_task);
 
 
 //  projoverview
@@ -125,11 +142,18 @@ Router.post("/updatePassword", updateUserpassword);
 Router.get("/get_admins", get_admins);
 Router.delete("/delete_admin/:id", deleteadmins);
 Router.put("/updatePassword_admin", updateadminpasswods);
-Router.get("/admin_profile", get_admin_profile)
-Router.delete("/delete_proj/:id",delete_project)
+Router.get("/admin_profile", get_admin_profile);
+Router.delete("/delete_proj/:id", delete_project);
 
 // group 
 Router.delete("/group_delete/:selectedGroup", delete_groupe);
 Router.get("/groups/:selectedGroup", get_group);
-Router.put("/update_groups/:selectedGroup", edit_group)
+Router.put("/update_groups/:selectedGroup", edit_group);
+
+//ceo_controllers
+Router.get("/employee_performance", emplyee_perfomance_data);
+
+// hybread options
+Router.get("/hybread", create_hybread_team);
+Router.post("/custom_project", create_hybread_custom_project);
 export default Router;

@@ -112,6 +112,31 @@ export const adminCrudFunctions = (modules: any) => {
       return updateEmploye;
     },
 
+    update_admins: async (
+      id: string,
+      name: string,
+      email: string,
+      department: string,
+      role: string,
+      active: boolean,
+    ) => {
+      let updateAdmin = await modules.findByIdAndUpdate(
+        id,
+        {
+          name,
+          email,
+          department,
+          role,
+          active,
+        },
+        {
+          new: true,
+          runvalidators: true,
+        },
+      );
+      return updateAdmin;
+    },
+
     deleteEmploye: async (id: string) => {
       let deletedEmploye = await modules.findByIdAndDelete(
         new Types.ObjectId(id),
@@ -173,6 +198,7 @@ export const adminCrudFunctions = (modules: any) => {
           minute: "2-digit",
           hour12: true,
         });
+        console.log("new punching called");
         let attendanceObj = await modules.findOne({ userId: id, date: today });
         if (!attendanceObj) {
           attendanceObj = await new modules({
@@ -182,10 +208,8 @@ export const adminCrudFunctions = (modules: any) => {
               {
                 firstnoon: {
                   timeIn: time,
-                  timeOut: null,
                 },
                 secondnoon: {
-                  timeIn: null,
                   timeOut: null,
                 },
               },
@@ -193,19 +217,20 @@ export const adminCrudFunctions = (modules: any) => {
           });
           attendanceObj.save();
         } else {
-          switch (action) {
-            case "LUNCH_START":
-              attendanceObj.logs[0].firstnoon.timeOut = time;
-              break;
+          // switch (action) {
+          //   case "LUNCH_START":
+          //     attendanceObj.logs[0].firstnoon.timeOut = time;
+          //     break;
 
-            case "LUNCH_END":
-              attendanceObj.logs[0].secondnoon.timeIn = time;
-              break;
+          //   case "LUNCH_END":
+          //     attendanceObj.logs[0].secondnoon.timeIn = time;
+          //     break;
 
-            case "PUNCH_OUT":
-              attendanceObj.logs[0].secondnoon.timeOut = time;
-              break;
-          }
+          //   case "PUNCH_OUT":
+          //     attendanceObj.logs[0].secondnoon.timeOut = time;
+          //     break;
+          // }
+          attendanceObj.logs[0].secondnoon.timeOut = time;
           attendanceObj.save();
         }
       }
@@ -360,6 +385,7 @@ export const adminCrudFunctions = (modules: any) => {
     projectOverview: async (id: any) => {
       console.log("proj_id", id);
       let data = await modules.aggregate([
+
         {
           $match: { projectId: id },
         },
@@ -386,12 +412,12 @@ export const adminCrudFunctions = (modules: any) => {
                 },
               },
             ],
-            as: "emp_datas",
+            as: "emp_heads",
           },
         },
         {
           $unwind: {
-            path: "$emp_datas",
+            path: "$emp_heads",
             preserveNullAndEmptyArrays: true,
           },
         },
@@ -401,7 +427,7 @@ export const adminCrudFunctions = (modules: any) => {
             projectId: 0,
             headId: 0,
             // eployeeTasks:1,
-            //  "emp_datas.name":1,
+            //  "emp_heads.name":1,
           },
         },
 
@@ -449,8 +475,8 @@ export const adminCrudFunctions = (modules: any) => {
         {
           $project: {
             _id: 0,
-            "emp_datas.name": 1,
-            "emp_datas._id": 1,
+            "emp_heads.name": 1,
+            "emp_heads._id": 1,
             employeeTasks: 1,
             sub_tasks: 1,
           },
@@ -554,5 +580,143 @@ export const adminCrudFunctions = (modules: any) => {
       console.log(update_group);
       return update_group;
     },
+    emplyee_performance: async () => {
+      try {
+        let data = await modules.aggregate([
+          // {
+          // $unwind: "$_id",
+          // },
+          {
+            $lookup: {
+              from: "users",
+              let: { empid: "$employeeTasks.employee" },
+
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $in: ["$_id", "$$empid"],
+                    },
+                  },
+                },
+              ],
+              as: "empdata",
+            },
+          },
+          // {
+          // $project: {
+          // _id: 1,
+          // projectId: 1,
+          // headId: 1,
+          // employ: { $arrayElemAt: ["$empdata", 0] },
+          // },
+          // },
+        ]);
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    custom_team: async (head_id: any) => {
+      try {
+        let department_data = await modules.aggregate([
+          {
+            $lookup: {
+              from: "users",
+              let: { dep: "$Dep_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $eq: ["$department", "$$dep"] },
+                  },
+                },
+              ],
+              as: "employee",
+            },
+          },
+          {
+            $unwind: {
+              path: "$employee",
+              // preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              Dep_id: 1,
+              "employee._id": 1,
+              "employee.name": 1,
+              "employee.department": 1,
+            },
+          },
+          {
+            $lookup: {
+              from: "admin_roles",
+              localField: "Dep_id",
+              foreignField: "department",
+              as: "heads",
+            },
+          },
+          {
+            $unwind: {
+              path: "$heads",
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              Dep_id: 1,
+              "employee._id": 1,
+              "employee.name": 1,
+              "employee.department": 1,
+              "heads._id": 1,
+              "heads.name": 1,
+              "heads.role": 1,
+            },
+          },
+        ]);
+
+        // console.log(department_data);
+        if (department_data != undefined || null) {
+          return department_data;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    create_custom_project: async (custom_proj_data: any) => {
+      try {
+        console.log(
+          custom_proj_data.fileNo,
+          custom_proj_data.date,
+          custom_proj_data.channelName,
+          custom_proj_data.projectOption,
+          custom_proj_data.title, custom_proj_data.tump,
+          custom_proj_data.departmentsOrdered,
+          // custom_proj_data.customTeam,
+          // custom_proj_data.customTeam.name
+        )
+        let custom_datas = new modules({
+          fileNo: custom_proj_data.fileNo,
+          date: custom_proj_data.date,
+          channelName: custom_proj_data.channelName,
+          projectOption: custom_proj_data.projectOption,
+          title: custom_proj_data.title,
+          tump: custom_proj_data.tump,
+          departmentsOrdered: custom_proj_data.departmentsOrdered,
+          customTeam: {
+            name: custom_proj_data.customTeam.name,
+            members: custom_proj_data.customTeam.members
+          }
+        });
+
+        let saved_data = await custom_datas.save();
+        console.log("saved data ", saved_data);
+      } catch (error) {
+        console.log(error);
+      }
+
+    }
   };
 };
+

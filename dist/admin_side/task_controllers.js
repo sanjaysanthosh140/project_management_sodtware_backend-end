@@ -3,17 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const attendance_schema_1 = __importDefault(require("../db_controllers/db_models/attendance_schema"));
 const Daily_reports_1 = __importDefault(require("../db_controllers/db_models/task_schemas/Daily_reports"));
+const tasks_schema_1 = __importDefault(require("../db_controllers/db_models/task_schemas/tasks_schema"));
 const department_projects_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_projects"));
 const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_schema");
 const assigen_tasks_1 = __importDefault(require("../db_controllers/db_models/admin_side/assigen-tasks"));
 const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
+const hybread_project_schema_1 = __importDefault(require("../db_controllers/db_models/hybread_projects/hybread_project_schema"));
 const task_controller = (task_data, task_models) => {
     return new Promise((resolve, rejects) => {
         const task_obj = new task_models(task_data);
@@ -64,6 +66,14 @@ const create_admins = (req, res, next) => {
     res.status(200).json(admin_data);
 };
 exports.create_admins = create_admins;
+const update_admin = async (req, res, next) => {
+    const { name, email, department, role, active } = req.body;
+    const id = req.params.id;
+    const updateAdmin = (0, admin_crud_1.adminCrudFunctions)(admin_roles_schema_1.admin_roles_models);
+    let updatedData = await updateAdmin.update_admins(id, name, email, department, role, active);
+    res.status(200).json(updatedData);
+};
+exports.update_admin = update_admin;
 const deleteEmploye = async (req, res, next) => {
     const id = req.params.id;
     const employeDelete = (0, admin_crud_1.adminCrudFunctions)(user_schema_1.default);
@@ -176,6 +186,24 @@ const read_reports = async (req, res, next) => {
     res.status(200).json(data);
 };
 exports.read_reports = read_reports;
+const read_reports_by_employee = async (req, res, next) => {
+    try {
+        const employeeId = req.params.employeeId;
+        if (!employeeId) {
+            res.status(400).json({ message: "employeeId is required" });
+            return;
+        }
+        const reports = await Daily_reports_1.default.find({ userID: employeeId }).sort({
+            date: -1,
+        });
+        res.status(200).json(reports);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to fetch employee reports" });
+    }
+};
+exports.read_reports_by_employee = read_reports_by_employee;
 const create_pojects = async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     const decodedToken = jsonwebtoken_1.default.verify(token, "secret_key");
@@ -230,6 +258,91 @@ const update_assigned_tasks = async (req, res, next) => {
     res.status(200).json({ message: "Tasks updated successfully" });
 };
 exports.update_assigned_tasks = update_assigned_tasks;
+const create_hr_head_task = async (req, res, next) => {
+    try {
+        const { headId, admin, title, priority, deadline, assignedDate, assignedByRole, assignedByName, } = req.body;
+        const taskObj = new tasks_schema_1.default({
+            headId,
+            admin,
+            title,
+            desc: title,
+            priority,
+            deadline,
+            assignedDate,
+            status: "pending",
+            assignedByRole,
+            assignedByName,
+        });
+        const savedTask = await taskObj.save();
+        res.status(200).json(savedTask);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to create task" });
+    }
+};
+exports.create_hr_head_task = create_hr_head_task;
+const get_hr_head_tasks = async (req, res, next) => {
+    try {
+        const headId = req.query.headId;
+        console.log("call geted ", headId);
+        const tasks = (await headId)
+            ? await tasks_schema_1.default.find({ headId }).sort({ assignedDate: -1 })
+            : await tasks_schema_1.default
+                .find({ headId: { $exists: true, $ne: "" } })
+                .sort({ assignedDate: -1 });
+        res.status(200).json(tasks);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to fetch tasks" });
+    }
+};
+exports.get_hr_head_tasks = get_hr_head_tasks;
+const update_hr_head_task = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        const taskData = req.body;
+        const patch = {
+            headId: taskData.headId,
+            title: taskData.title,
+            desc: taskData.title || taskData.desc,
+            priority: taskData.priority,
+            deadline: taskData.deadline,
+            assignedDate: taskData.assignedDate,
+            status: taskData.status || "pending",
+        };
+        if (taskData.assignedByRole !== undefined) {
+            patch.assignedByRole = taskData.assignedByRole;
+        }
+        if (taskData.assignedByName !== undefined) {
+            patch.assignedByName = taskData.assignedByName;
+        }
+        const updatedTask = await tasks_schema_1.default.findByIdAndUpdate(id, patch, {
+            new: true,
+            runValidators: true,
+        });
+        res.status(200).json(updatedTask);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to update task" });
+    }
+};
+exports.update_hr_head_task = update_hr_head_task;
+const delete_hr_head_task = async (req, res, next) => {
+    try {
+        const id = req.params.id;
+        await tasks_schema_1.default.findByIdAndDelete(id);
+        res.status(200).json({ message: "task deleted successfully" });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to delete task" });
+    }
+};
+exports.delete_hr_head_task = delete_hr_head_task;
+//  -----
 const project_overview = async (req, res, next) => {
     const id = req.params.project_id;
     const projectOverview = (0, admin_crud_1.adminCrudFunctions)(assigen_tasks_1.default);
@@ -363,3 +476,29 @@ const edit_group = async (req, res, next) => {
     }
 };
 exports.edit_group = edit_group;
+const emplyee_perfomance_data = async (req, res, next) => {
+    let admin_crud_method = (0, admin_crud_1.adminCrudFunctions)(assigen_tasks_1.default);
+    let peformance_data = await admin_crud_method.emplyee_performance();
+};
+exports.emplyee_perfomance_data = emplyee_perfomance_data;
+const create_hybread_team = async (req, res, next) => {
+    // console.log(req.headers.authorization);
+    let encodedToken = req.headers.authorization;
+    let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+    console.log(decodedToken.id);
+    let custom_teams = (0, admin_crud_1.adminCrudFunctions)(department_schema_1.default);
+    let custom_data = await custom_teams.custom_team(decodedToken);
+    console.log(custom_data);
+    res.status(200).json(custom_data);
+};
+exports.create_hybread_team = create_hybread_team;
+const create_hybread_custom_project = async (req, res, next) => {
+    let encodedToken = req.headers.authorization;
+    console.log(encodedToken);
+    let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+    let custom_proj_data = req.body;
+    // console.log(decodedToken.id, custom_proj_data);
+    let store_custom_proj_data = (0, admin_crud_1.adminCrudFunctions)(hybread_project_schema_1.default);
+    let stored_data = await store_custom_proj_data.create_custom_project(custom_proj_data);
+};
+exports.create_hybread_custom_project = create_hybread_custom_project;

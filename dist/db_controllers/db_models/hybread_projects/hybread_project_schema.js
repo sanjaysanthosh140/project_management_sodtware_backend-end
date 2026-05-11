@@ -34,26 +34,71 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const attendanceSchema = new mongoose_1.Schema({
-    userId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        required: true,
+const departmentordered = new mongoose_1.Schema({
+    departmentId: {
+        type: String,
+        required: true
+    },
+    departmentName: {
+        type: String,
+        required: true
+    },
+    headId: {
+        type: String,
+        required: true
+    },
+    headName: {
+        type: String,
+        required: true
+    }
+});
+const customTeamMembers = new mongoose_1.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    members: [{
+            empId: {
+                type: String,
+                required: true
+            },
+            name: {
+                type: String,
+                required: true
+            },
+            department: {
+                type: String,
+                required: true
+            }
+        }]
+});
+const hybread_project_schema = new mongoose_1.Schema({
+    fileNo: {
+        type: String,
+        required: true
     },
     date: {
-        type: Date,
-        required: true,
+        type: String,
+        required: true
     },
-    logs: [
-        {
-            firstnoon: {
-                timeIn: String
-            },
-            secondnoon: {
-                timeOut: String
-            },
-        }
-    ],
+    channelName: {
+        type: String,
+        required: true
+    },
+    projectOption: {
+        type: String,
+        required: true
+    },
+    title: {
+        type: String,
+        required: true
+    },
+    tump: {
+        type: String,
+        required: true
+    },
+    departmentsOrdered: [departmentordered],
+    customTeam: customTeamMembers
 });
-attendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
-const AttendanceModel = mongoose_1.default.model("Attendance", attendanceSchema);
-exports.default = AttendanceModel;
+const hybread_project_models = mongoose_1.default.model("hybread_projects", hybread_project_schema);
+exports.default = hybread_project_models;

@@ -36,27 +36,58 @@ export const user_project_controller = async (modules: any) => {
 
     employee_assigned_tasks: async (id: string, projectId: string) => {
       // console.log(id, projectId);
-      let data = await modules.aggregate([
-        {
-          $unwind: "$employeeTasks",
-        },
-        {
-          $match: {
-            projectId: projectId,
-            "employeeTasks.employee": id,
+      try {
+        let data = await modules.aggregate([
+          {
+            $unwind: "$employeeTasks",
           },
-        },
-        {
-          $project: {
-            _id: 0,
-            headId: 1,
-            "employeeTasks.tasks": 1,
-            "employeeTasks._id": 1,
+          {
+            $match: {
+              projectId: projectId,
+              "employeeTasks.employee": id,
+            },
           },
-        },
-      ]);
-      // console.log(data);
-      return data;
+          {
+            $addFields: {
+              headObjectId: {
+                $convert: {
+                  input: "$headId",
+                  to: "objectId",
+                  onError: null,
+                  onNull: null,
+                },
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "admin_roles",
+              localField: "headObjectId",
+              foreignField: "_id",
+              as: "headData",
+            },
+          },
+          {
+            $unwind: {
+              path: "$headData",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              headId: 1,
+              headName: "$headData.name",
+              "employeeTasks.tasks": 1,
+              "employeeTasks._id": 1,
+            },
+          },
+        ]);
+        return data;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
     },
 
     add_sub_tasks_emp: async (

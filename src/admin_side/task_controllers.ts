@@ -7,10 +7,12 @@ import departmentModel from "../db_controllers/db_models/admin_side/department_s
 import jwt from "jsonwebtoken";
 import AttendanceModel from "../db_controllers/db_models/attendance_schema";
 import DailyReportsModel from "../db_controllers/db_models/task_schemas/Daily_reports";
+import tasks_module_it from "../db_controllers/db_models/task_schemas/tasks_schema";
 import departmentProjectsModle from "../db_controllers/db_models/admin_side/department_projects";
 import { admin_roles_models } from "../db_controllers/db_models/admin_roles_schema";
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
 import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
+import hybread_project_models from "../db_controllers/db_models/hybread_projects/hybread_project_schema";
 interface IDecodeToken {
   id: string;
   iat: number;
@@ -87,6 +89,25 @@ export const create_admins = (
     active,
   );
   res.status(200).json(admin_data);
+};
+
+export const update_admin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { name, email, department, role, active } = req.body;
+  const id = req.params.id;
+  const updateAdmin = adminCrudFunctions(admin_roles_models);
+  let updatedData = await updateAdmin.update_admins(
+    id,
+    name,
+    email,
+    department,
+    role,
+    active,
+  );
+  res.status(200).json(updatedData);
 };
 
 export const deleteEmploye = async (
@@ -270,6 +291,27 @@ export const read_reports = async (
   res.status(200).json(data);
 };
 
+export const read_reports_by_employee = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const employeeId = req.params.employeeId;
+    if (!employeeId) {
+      res.status(400).json({ message: "employeeId is required" });
+      return;
+    }
+    const reports = await DailyReportsModel.find({ userID: employeeId }).sort({
+      date: -1,
+    });
+    res.status(200).json(reports);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to fetch employee reports" });
+  }
+};
+
 export const create_pojects = async (
   req: Request,
   res: Response,
@@ -351,6 +393,111 @@ export const update_assigned_tasks = async (
   res.status(200).json({ message: "Tasks updated successfully" });
 };
 
+export const create_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const {
+      headId,
+      admin,
+      title,
+      priority,
+      deadline,
+      assignedDate,
+      assignedByRole,
+      assignedByName,
+    } = req.body;
+    const taskObj = new tasks_module_it({
+      headId,
+      admin,
+      title,
+      desc: title,
+      priority,
+      deadline,
+      assignedDate,
+      status: "pending",
+      assignedByRole,
+      assignedByName,
+    });
+    const savedTask = await taskObj.save();
+    res.status(200).json(savedTask);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to create task" });
+  }
+};
+
+export const get_hr_head_tasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const headId = req.query.headId as string | undefined;
+    console.log("call geted ", headId);
+    const tasks = (await headId)
+      ? await tasks_module_it.find({ headId }).sort({ assignedDate: -1 })
+      : await tasks_module_it
+        .find({ headId: { $exists: true, $ne: "" } })
+        .sort({ assignedDate: -1 });
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to fetch tasks" });
+  }
+};
+
+export const update_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
+    const taskData = req.body;
+    const patch: Record<string, unknown> = {
+      headId: taskData.headId,
+      title: taskData.title,
+      desc: taskData.title || taskData.desc,
+      priority: taskData.priority,
+      deadline: taskData.deadline,
+      assignedDate: taskData.assignedDate,
+      status: taskData.status || "pending",
+    };
+    if (taskData.assignedByRole !== undefined) {
+      patch.assignedByRole = taskData.assignedByRole;
+    }
+    if (taskData.assignedByName !== undefined) {
+      patch.assignedByName = taskData.assignedByName;
+    }
+    const updatedTask = await tasks_module_it.findByIdAndUpdate(id, patch, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to update task" });
+  }
+};
+
+export const delete_hr_head_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const id = req.params.id;
+    await tasks_module_it.findByIdAndDelete(id);
+    res.status(200).json({ message: "task deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to delete task" });
+  }
+};
+//  -----
 export const project_overview = async (
   req: Request,
   res: Response,
@@ -535,3 +682,37 @@ export const edit_group = async (
     res.status(200).json({ message: "updated successfully" });
   }
 };
+
+export const emplyee_perfomance_data = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  let admin_crud_method = adminCrudFunctions(assignedTasksModel);
+  let peformance_data = await admin_crud_method.emplyee_performance();
+};
+
+export const create_hybread_team = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  // console.log(req.headers.authorization);
+  let encodedToken: any = req.headers.authorization;
+  let decodedToken: any = jwt.verify(encodedToken, "secret_key");
+  console.log(decodedToken.id);
+  let custom_teams = adminCrudFunctions(departmentModel);
+  let custom_data = await custom_teams.custom_team(decodedToken);
+  console.log(custom_data);
+  res.status(200).json(custom_data);
+};
+
+export const create_hybread_custom_project = async (req: Request, res: Response, next: NextFunction) => {
+  let encodedToken: any = req.headers.authorization;
+  console.log(encodedToken);
+  let decodedToken: any = jwt.verify(encodedToken, "secret_key");
+  let custom_proj_data = req.body;
+  // console.log(decodedToken.id, custom_proj_data);
+  let store_custom_proj_data = adminCrudFunctions(hybread_project_models);
+  let stored_data = await store_custom_proj_data.create_custom_project(custom_proj_data)
+}

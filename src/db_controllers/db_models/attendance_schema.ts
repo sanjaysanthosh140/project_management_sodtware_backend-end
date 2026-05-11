@@ -6,16 +6,13 @@ interface IAttendance {
   logs: [{
     firstnoon: {
       timeIn: string | null;
-      timeOut: string | null;
     },
     secondnoon: {
-      timeIn: string | null;
       timeOut: string | null;
 
     },
   }]
 }
-
 const attendanceSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
@@ -28,19 +25,15 @@ const attendanceSchema = new Schema({
   logs: [
     {
       firstnoon: {
-        timeIn: String,
-        timeOut: String,
+        timeIn: String
       },
       secondnoon: {
-        timeIn: String,
-        timeOut: String,
+        timeOut: String
       },
     }],
 
 });
 attendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
-
-
 const AttendanceModel = mongoose.model<IAttendance>(
   "Attendance",
   attendanceSchema,

@@ -60,6 +60,7 @@ Router.post("/employes", task_controllers_1.addEmploye);
 Router.delete("/deleteEmp/:id", task_controllers_1.deleteEmploye);
 Router.put("/updateEmploye/:id", task_controllers_1.updateEmplye);
 Router.post("/add_admins", task_controllers_1.create_admins);
+Router.put("/update_admin/:id", task_controllers_1.update_admin); ////
 //departments
 Router.post("/addDep", task_controllers_1.createDepartments);
 Router.get("/departments", task_controllers_1.fetchDepartments);
@@ -72,12 +73,17 @@ Router.post("/Daily_reports", task_controllers_1.work_Reports);
 Router.put("/update_report/:editingId", task_controllers_1.edit_daily_report);
 Router.delete("/delete_report/:id", task_controllers_1.delete_daily_report);
 Router.get("/reports", task_controllers_1.read_reports);
+Router.get("/reports/employee/:employeeId", task_controllers_1.read_reports_by_employee);
 Router.post("/create_project", task_controllers_1.create_pojects);
 Router.get("/employes", task_controllers_1.availableEmployess);
 Router.get("/headProj", task_controllers_1.Fetch_projects);
 Router.post("/assigned_tasks", task_controllers_1.assigned_tasks);
 Router.get("/check_assigned_tasks/:id", task_controllers_1.check_assigned_taks);
 Router.put("/assigned_tasks/:id", task_controllers_1.update_assigned_tasks);
+Router.post("/hr_assigned_tasks", task_controllers_1.create_hr_head_task);
+Router.get("/hr_assigned_tasks", task_controllers_1.get_hr_head_tasks);
+Router.put("/hr_assigned_tasks/:id", task_controllers_1.update_hr_head_task);
+Router.delete("/hr_assigned_tasks/:id", task_controllers_1.delete_hr_head_task);
 //  projoverview
 Router.get("/project-overview/:project_id", task_controllers_1.project_overview);
 Router.delete("/edit_project/:id", task_controllers_1.edit_project);
@@ -92,4 +98,9 @@ Router.delete("/delete_proj/:id", task_controllers_1.delete_project);
 Router.delete("/group_delete/:selectedGroup", task_controllers_1.delete_groupe);
 Router.get("/groups/:selectedGroup", task_controllers_1.get_group);
 Router.put("/update_groups/:selectedGroup", task_controllers_1.edit_group);
+//ceo_controllers
+Router.get("/employee_performance", task_controllers_1.emplyee_perfomance_data);
+// hybread options
+Router.get("/hybread", task_controllers_1.create_hybread_team);
+Router.post("/custom_project", task_controllers_1.create_hybread_custom_project);
 exports.default = Router;
