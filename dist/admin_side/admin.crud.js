@@ -329,12 +329,12 @@ const adminCrudFunctions = (modules) => {
                                 },
                             },
                         ],
-                        as: "emp_heads",
+                        as: "emp_datas",
                     },
                 },
                 {
                     $unwind: {
-                        path: "$emp_heads",
+                        path: "$emp_datas",
                         preserveNullAndEmptyArrays: true,
                     },
                 },
@@ -344,7 +344,7 @@ const adminCrudFunctions = (modules) => {
                         projectId: 0,
                         headId: 0,
                         // eployeeTasks:1,
-                        //  "emp_heads.name":1,
+                        //  "emp_datas.name":1,
                     },
                 },
                 {
@@ -390,8 +390,8 @@ const adminCrudFunctions = (modules) => {
                 {
                     $project: {
                         _id: 0,
-                        "emp_heads.name": 1,
-                        "emp_heads._id": 1,
+                        "emp_datas.name": 1,
+                        "emp_datas._id": 1,
                         employeeTasks: 1,
                         sub_tasks: 1,
                     },
@@ -595,8 +595,8 @@ const adminCrudFunctions = (modules) => {
                     departmentsOrdered: custom_proj_data.departmentsOrdered,
                     customTeam: {
                         name: custom_proj_data.customTeam.name,
-                        members: custom_proj_data.customTeam.members
-                    }
+                        members: custom_proj_data.customTeam.members,
+                    },
                 });
                 let saved_data = await custom_datas.save();
                 console.log("saved data ", saved_data);
@@ -609,7 +609,7 @@ const adminCrudFunctions = (modules) => {
             try {
                 console.log("employee token reached here  ", decoded_token);
                 let data = await modules.find({
-                    "departmentsOrdered.headId": decoded_token
+                    "departmentsOrdered.headId": decoded_token,
                 });
                 console.log(data);
                 return data;
@@ -625,11 +625,11 @@ const adminCrudFunctions = (modules) => {
                 let proj_id = new mongoose_1.default.Types.ObjectId(everything_team_task.projectId);
                 let departmet = await modules.findOneAndUpdate({
                     _id: proj_id,
-                    "departmentsOrdered.departmentId": dep_id
+                    "departmentsOrdered.departmentId": dep_id,
                 }, {
                     $set: {
-                        "departmentsOrdered.$.employee": everything_team_task.team
-                    }
+                        "departmentsOrdered.$.employee": everything_team_task.team,
+                    },
                 });
                 console.log(departmet);
             }
@@ -642,16 +642,16 @@ const adminCrudFunctions = (modules) => {
             try {
                 let updated = await modules.findOneAndUpdate({
                     _id: new mongoose_1.default.Types.ObjectId(projectId),
-                    "departmentsOrdered.departmentId": departmentId
+                    "departmentsOrdered.departmentId": departmentId,
                 }, {
-                    $set: { "departmentsOrdered.$.dept_status": status }
+                    $set: { "departmentsOrdered.$.dept_status": status },
                 }, { new: true });
                 return updated;
             }
             catch (error) {
                 console.log(error);
             }
-        }
+        },
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

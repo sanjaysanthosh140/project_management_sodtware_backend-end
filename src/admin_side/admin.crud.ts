@@ -385,7 +385,6 @@ export const adminCrudFunctions = (modules: any) => {
     projectOverview: async (id: any) => {
       console.log("proj_id", id);
       let data = await modules.aggregate([
-
         {
           $match: { projectId: id },
         },
@@ -412,12 +411,12 @@ export const adminCrudFunctions = (modules: any) => {
                 },
               },
             ],
-            as: "emp_heads",
+            as: "emp_datas",
           },
         },
         {
           $unwind: {
-            path: "$emp_heads",
+            path: "$emp_datas",
             preserveNullAndEmptyArrays: true,
           },
         },
@@ -427,7 +426,7 @@ export const adminCrudFunctions = (modules: any) => {
             projectId: 0,
             headId: 0,
             // eployeeTasks:1,
-            //  "emp_heads.name":1,
+            //  "emp_datas.name":1,
           },
         },
 
@@ -475,8 +474,8 @@ export const adminCrudFunctions = (modules: any) => {
         {
           $project: {
             _id: 0,
-            "emp_heads.name": 1,
-            "emp_heads._id": 1,
+            "emp_datas.name": 1,
+            "emp_datas._id": 1,
             employeeTasks: 1,
             sub_tasks: 1,
           },
@@ -691,11 +690,12 @@ export const adminCrudFunctions = (modules: any) => {
           custom_proj_data.date,
           custom_proj_data.channelName,
           custom_proj_data.projectOption,
-          custom_proj_data.title, custom_proj_data.tump,
+          custom_proj_data.title,
+          custom_proj_data.tump,
           custom_proj_data.departmentsOrdered,
           // custom_proj_data.customTeam,
           // custom_proj_data.customTeam.name
-        )
+        );
         let custom_datas = new modules({
           fileNo: custom_proj_data.fileNo,
           date: custom_proj_data.date,
@@ -706,8 +706,8 @@ export const adminCrudFunctions = (modules: any) => {
           departmentsOrdered: custom_proj_data.departmentsOrdered,
           customTeam: {
             name: custom_proj_data.customTeam.name,
-            members: custom_proj_data.customTeam.members
-          }
+            members: custom_proj_data.customTeam.members,
+          },
         });
 
         let saved_data = await custom_datas.save();
@@ -720,7 +720,7 @@ export const adminCrudFunctions = (modules: any) => {
       try {
         console.log("employee token reached here  ", decoded_token);
         let data = await modules.find({
-          "departmentsOrdered.headId": decoded_token
+          "departmentsOrdered.headId": decoded_token,
         });
 
         console.log(data);
@@ -733,38 +733,46 @@ export const adminCrudFunctions = (modules: any) => {
       try {
         console.log("everything_team_task_reached ", everything_team_task);
         let dep_id = everything_team_task.departmentId;
-        let proj_id = new mongoose.Types.ObjectId(everything_team_task.projectId);
-        let departmet = await modules.findOneAndUpdate({
-          _id: proj_id,
-          "departmentsOrdered.departmentId": dep_id
-        }, {
-          $set: {
-            "departmentsOrdered.$.employee": everything_team_task.team
-          }
-        })
+        let proj_id = new mongoose.Types.ObjectId(
+          everything_team_task.projectId,
+        );
+        let departmet = await modules.findOneAndUpdate(
+          {
+            _id: proj_id,
+            "departmentsOrdered.departmentId": dep_id,
+          },
+          {
+            $set: {
+              "departmentsOrdered.$.employee": everything_team_task.team,
+            },
+          },
+        );
         console.log(departmet);
       } catch (error) {
         console.log(error);
       }
     },
     // AI Added: Updates the status of a specific department within a hybrid project
-    update_hybread_project_status: async (projectId: string, departmentId: string, status: string) => {
+    update_hybread_project_status: async (
+      projectId: string,
+      departmentId: string,
+      status: string,
+    ) => {
       try {
         let updated = await modules.findOneAndUpdate(
-          { 
+          {
             _id: new mongoose.Types.ObjectId(projectId),
-            "departmentsOrdered.departmentId": departmentId
+            "departmentsOrdered.departmentId": departmentId,
           },
-          { 
-            $set: { "departmentsOrdered.$.dept_status": status } 
+          {
+            $set: { "departmentsOrdered.$.dept_status": status },
           },
-          { new: true }
+          { new: true },
         );
         return updated;
       } catch (error) {
         console.log(error);
       }
-    }
+    },
   };
 };
-
