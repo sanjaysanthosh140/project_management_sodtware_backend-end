@@ -173,6 +173,49 @@ const user_project_controller = async (modules) => {
             });
             return msgdelete;
         },
+        included_hybread_project: async (empid) => {
+            try {
+                console.log(empid);
+                let inlcuded_proj_ = await modules.find({ "departmentsOrdered.employee.employeeId": empid });
+                console.log(inlcuded_proj_);
+                return inlcuded_proj_;
+            }
+            catch (error) {
+                console.log(error);
+            }
+        },
+        // AI Modified: Updated to use arrayFilters for deep nested task status updates
+        update_hybread_tasks: async (projectId, departmentId, employeeId, taskId, status) => {
+            try {
+                let update_task_status = await modules.findOneAndUpdate({
+                    _id: new mongoose_1.default.Types.ObjectId(projectId),
+                    "departmentsOrdered.departmentId": departmentId,
+                    "departmentsOrdered.employee.employeeId": employeeId,
+                }, {
+                    $set: {
+                        "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status": status
+                    }
+                }, {
+                    arrayFilters: [
+                        {
+                            "dept.departmentId": departmentId
+                        },
+                        {
+                            "emp.employeeId": employeeId
+                        },
+                        {
+                            "task.H_task_id": taskId
+                        }
+                    ],
+                    new: true
+                });
+                console.log(update_task_status);
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+        // 
     };
 };
 exports.user_project_controller = user_project_controller;

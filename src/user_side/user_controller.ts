@@ -197,13 +197,73 @@ export const user_project_controller = async (modules: any) => {
 
     delete_message: async (id: string, sender: any) => {
       let encodedjwt: any = sender
-      console.log("this form delete msg function socket.io",id,sender);
+      console.log("this form delete msg function socket.io", id, sender);
       let userId: any = jwt.verify(encodedjwt, "secret_key");
       let msgdelete = await modules.findByIdAndDelete({
         _id: new mongoose.Types.ObjectId(id),
-        sender:userId.id ,
+        sender: userId.id,
       });
       return msgdelete;
     },
+
+    included_hybread_project: async (empid: string) => {
+      try {
+        console.log(empid);
+        let inlcuded_proj_ = await modules.find({ "departmentsOrdered.employee.employeeId": empid })
+        console.log(inlcuded_proj_);
+        return inlcuded_proj_;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    // AI Modified: Updated to use arrayFilters for deep nested task status updates
+    update_hybread_tasks: async (projectId: string, departmentId: string, employeeId: string, taskId: string, status: string) => {
+      try {
+        let update_task_status =
+          await modules.findOneAndUpdate(
+
+            {
+              _id: new mongoose.Types.ObjectId(projectId),
+              "departmentsOrdered.departmentId": departmentId,
+              "departmentsOrdered.employee.employeeId": employeeId,
+            },
+
+            {
+              $set: {
+                "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status": status
+              }
+            },
+
+            {
+              arrayFilters: [
+
+                {
+                  "dept.departmentId": departmentId
+                },
+
+                {
+                  "emp.employeeId": employeeId
+                },
+
+                {
+                  "task.H_task_id": taskId
+                }
+
+              ],
+
+              new: true
+            }
+
+          )
+
+
+        console.log(update_task_status)
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    // 
+
   };
 };
+

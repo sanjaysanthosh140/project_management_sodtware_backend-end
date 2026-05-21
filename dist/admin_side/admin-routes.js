@@ -11,6 +11,17 @@ const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_sc
 const tasks_schema_1 = __importDefault(require("../db_controllers/db_models/task_schemas/tasks_schema"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const task_controllers_1 = require("./task_controllers");
+const multer_1 = __importDefault(require("multer"));
+const Storage = multer_1.default.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./uploads");
+    },
+    filename: function (req, file, cb) {
+        const uniquesuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + "-" + uniquesuffix + '.jpg');
+    }
+});
+const upload = (0, multer_1.default)({ storage: Storage });
 Router.post("/verify_authorization", async (req, res) => {
     const { email, password } = req.body;
     if (email && password) {
@@ -101,6 +112,22 @@ Router.put("/update_groups/:selectedGroup", task_controllers_1.edit_group);
 //ceo_controllers
 Router.get("/employee_performance", task_controllers_1.emplyee_perfomance_data);
 // hybread options
-Router.get("/hybread", task_controllers_1.create_hybread_team);
-Router.post("/custom_project", task_controllers_1.create_hybread_custom_project);
+// Router.get("/hybread", create_hybread_team);
+// Router.post("/custom_project", create_hybread_custom_project);
+// Router.get("/everything", get_everything);
+// Router.post("/everything_team_task", everything_team_task);
+// Router.put("/update_hybread_project_status", update_hybread_project_status);
+Router.post("/simple_custom_project", task_controllers_1.create_simple_custom_project);
+Router.get("/simple_custom_projects", task_controllers_1.get_simple_custom_projects);
+Router.put("/update_simple_project_status", task_controllers_1.update_simple_project_status);
+Router.post("/simple_custom_project_global_task", task_controllers_1.add_simple_project_global_task);
+Router.put("/simple_custom_project_global_task", task_controllers_1.update_simple_project_global_task_status);
+Router.get("/simple_custom_project/:pro_id", task_controllers_1.get_simple_custom_project_by_id);
+Router.put("/simple_custom_project/:edit_id", task_controllers_1.update_simple_custom_project);
+Router.get("/update_simple_proj_task/:proj_id", task_controllers_1.get_simple_proj_tasks);
+Router.put("/update_project_tasks", task_controllers_1.update_simple_proj_task);
+Router.delete("/simple_custom_project/:pro_id", task_controllers_1.delete_simple_project);
+Router.put("/delete_simple_project_global_task", task_controllers_1.delete_simple_project_global_task);
+// feature for admin_
+Router.post("/desktop_shorts", upload.single('short'), task_controllers_1.get_desk_short);
 exports.default = Router;

@@ -3,7 +3,6 @@ import { adminCrudFunctions } from "./admin.crud";
 import user_model from "../db_controllers/db_models/user_schema";
 import { Request, Response, NextFunction } from "express";
 import departmentModel from "../db_controllers/db_models/admin_side/department_schema";
-
 import jwt from "jsonwebtoken";
 import AttendanceModel from "../db_controllers/db_models/attendance_schema";
 import DailyReportsModel from "../db_controllers/db_models/task_schemas/Daily_reports";
@@ -13,11 +12,11 @@ import { admin_roles_models } from "../db_controllers/db_models/admin_roles_sche
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
 import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
 import hybread_project_models from "../db_controllers/db_models/hybread_projects/hybread_project_schema";
+import mongoose from "mongoose";
 interface IDecodeToken {
   id: string;
   iat: number;
 }
-
 export const task_controller = (task_data: any, task_models: any) => {
   return new Promise((resolve, rejects) => {
     const task_obj = new task_models(task_data);
@@ -440,8 +439,8 @@ export const get_hr_head_tasks = async (
     const tasks = (await headId)
       ? await tasks_module_it.find({ headId }).sort({ assignedDate: -1 })
       : await tasks_module_it
-        .find({ headId: { $exists: true, $ne: "" } })
-        .sort({ assignedDate: -1 });
+          .find({ headId: { $exists: true, $ne: "" } })
+          .sort({ assignedDate: -1 });
     res.status(200).json(tasks);
   } catch (error) {
     console.log(error);
@@ -707,12 +706,339 @@ export const create_hybread_team = async (
   res.status(200).json(custom_data);
 };
 
-export const create_hybread_custom_project = async (req: Request, res: Response, next: NextFunction) => {
+export const create_hybread_custom_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   let encodedToken: any = req.headers.authorization;
   console.log(encodedToken);
   let decodedToken: any = jwt.verify(encodedToken, "secret_key");
   let custom_proj_data = req.body;
   // console.log(decodedToken.id, custom_proj_data);
   let store_custom_proj_data = adminCrudFunctions(hybread_project_models);
-  let stored_data = await store_custom_proj_data.create_custom_project(custom_proj_data)
-}
+  let stored_data =
+    await store_custom_proj_data.create_custom_project(custom_proj_data);
+};
+
+export const get_everything = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let encodedToken: any = req.headers.authorization;
+    let decodedToken: any = jwt.verify(encodedToken, "secret_key");
+    console.log(decodedToken.id);
+    const everything_data = adminCrudFunctions(hybread_project_models);
+    const data = await everything_data.get_everything(decodedToken.id);
+    if (data) {
+      res.status(200).json(data);
+    } else {
+      res.status(404).json({ message: "no data found " });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const everything_team_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const team_task_data = req.body;
+  // console.log(team_task_data.team[2].tasks);
+  const admin_crud_function = adminCrudFunctions(hybread_project_models);
+  const E_team_task =
+    await admin_crud_function.everything_team_task(team_task_data);
+};
+
+// AI Added: Controller for updating department-level project status
+export const update_hybread_project_status = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { projectId, departmentId, status } = req.body;
+    const admin_crud_function = adminCrudFunctions(hybread_project_models);
+    const updated = await admin_crud_function.update_hybread_project_status(
+      projectId,
+      departmentId,
+      status,
+    );
+    res.status(200).json(updated);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "failed to update project status" });
+  }
+};
+
+export const create_simple_custom_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let projectData = req.body;
+    const newProject = new hybread_project_models(projectData);
+    const savedProject = await newProject.save();
+    res.status(201).json(savedProject);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to create simple custom project" });
+  }
+};
+
+export const get_simple_custom_projects = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const projects = await hybread_project_models.find().sort({ _id: -1 });
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to fetch simple custom projects" });
+  }
+};
+
+export const update_simple_project_status = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { projectId, departmentId, status, pending_reason } = req.body;
+    const result = await hybread_project_models.findOneAndUpdate(
+      { _id: projectId, "departments.departmentId": departmentId },
+      {
+        $set: {
+          "departments.$.dept_status": status,
+          "departments.$.pending_reason": pending_reason || "",
+        },
+      },
+      { new: true },
+    );
+    if (result) res.status(200).json(result);
+    else res.status(404).json({ message: "Project or department not found" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update project status" });
+  }
+};
+
+export const add_simple_project_global_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { projectId, content, date, contentType, departments } = req.body;
+    const result = await hybread_project_models.findByIdAndUpdate(
+      projectId,
+      {
+        $push: {
+          tasks: { content, date, contentType, departments },
+        },
+      },
+      { new: true },
+    );
+    if (result) res.status(200).json(result);
+    else res.status(404).json({ message: "Project not found" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to add task" });
+  }
+};
+
+export const update_simple_project_global_task_status = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { projectId, taskId, departmentId, status, remark } = req.body;
+    let encodedToken: any = req.headers.authorization;
+    let decodedToken: any = jwt.verify(encodedToken, "secret_key");
+    console.log(decodedToken);
+    const result = await hybread_project_models.findOneAndUpdate(
+      { _id: projectId },
+      {
+        $set: {
+          "tasks.$[task].departments.$[dept].status": status,
+          "tasks.$[task].departments.$[dept].remark": remark || "",
+        },
+      },
+      {
+        arrayFilters: [
+          { "task._id": taskId },
+          { "dept.departmentId": departmentId },
+        ],
+        new: true,
+      },
+    );
+    if (result) res.status(200).json(result);
+    else res.status(404).json({ message: "Project not found" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update task status" });
+  }
+};
+
+export const get_simple_custom_project_by_id = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let project_id = req.params.pro_id;
+    console.log(project_id);
+    let project = await hybread_project_models.findById({
+      _id: new mongoose.Types.ObjectId(project_id),
+    });
+    console.log(project);
+    res.status(200).json({ project });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const update_simple_custom_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let project_id = req.params.edit_id;
+    let prod_data = req.body;
+    console.log(project_id, prod_data);
+    let data = await hybread_project_models.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(project_id) },
+      {
+        $set: {
+          projectTilte: prod_data.projectTilte,
+          departments: prod_data.departments,
+        },
+      },
+    );
+    if (data) {
+      res.status(200).json({ message: "successfully updated" });
+    } else {
+      res.status(404).json({ message: "project updating failed" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const get_simple_proj_tasks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let proj_id = req.params.proj_id;
+    let proj_task_data = await hybread_project_models.findById({
+      _id: new mongoose.Types.ObjectId(proj_id),
+    });
+    console.log(proj_task_data);
+    res.status(200).json(proj_task_data);
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ message: "Failed to retrieve project tasks", error });
+  }
+};
+
+export const update_simple_proj_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let task_data = req.body;
+    let proj_id = task_data.projectId;
+    let task_id = task_data.taskId;
+    console.log(task_id);
+    let updated = await hybread_project_models.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(proj_id),
+        "tasks._id": new mongoose.Types.ObjectId(task_id),
+      },
+      {
+        $set: {
+          "tasks.$.date": task_data.date,
+          "tasks.$.contentType": task_data.contentType,
+          "tasks.$.content": task_data.content,
+        },
+      },
+    );
+    if (updated) {
+      res.status(200).json({ message: "successfully updated task" });
+    } else {
+      res.status(404).json({ message: "task updaton faild" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const delete_simple_project = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log("call reaced");
+    let id = req.params.pro_id;
+    const resposnse = await hybread_project_models.findOneAndDelete({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+    console.log(resposnse);
+    res.status(200).json({ message: "deleted successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const delete_simple_project_global_task = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let { projectId, taskId } = req.body;
+    console.log(projectId, taskId);
+    let data = await hybread_project_models.findOne({
+      _id: new mongoose.Types.ObjectId(projectId),
+      "tasks._id": new mongoose.Types.ObjectId(taskId),
+    });
+    let tasks: any = data?.tasks;
+    let index: any = tasks?.findIndex((i: any) => i._id == taskId);
+    tasks?.splice(index, 1);
+    console.log(tasks);
+    let output = await hybread_project_models.findOneAndUpdate(
+      {
+        _id: new mongoose.Types.ObjectId(projectId),
+        "tasks._id": new mongoose.Types.ObjectId(taskId),
+      },
+      {
+        $set: { tasks: tasks },
+      },
+    );
+    res.status(200).json({ message: "task removed successfully" });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const get_desk_short = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  console.log(req.file);
+};

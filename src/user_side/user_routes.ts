@@ -14,8 +14,12 @@ import {
   employee_profile,
   get_employees,
   get_included_grp,
+  // get_included_hybread_proj,
   getchatbox,
   new_group,
+  // update_hybrid_task_status,
+  get_simple_custom_projects_user,
+  update_simple_project_global_task_status_user,
 } from "./user_Proj_controller";
 const Router = express.Router();
 Router.post("/signup", (req: Request, res: Response) => {
@@ -90,5 +94,13 @@ Router.get("/messages/:roomType", getchatbox);
 Router.get("/employeelists", get_employees);
 Router.post("/groups/create", new_group);
 Router.get("/groups/user", get_included_grp);
+
 // Router.delete("/messages/:msgId",delete_msg)
+
+// hybread project_ --> emplyee routes
+// Router.get("/hybrid_projects", get_included_hybread_proj);
+// Router.put("/update_hybrid_task_status", update_hybrid_task_status);
+
+Router.get("/simple_custom_projects", get_simple_custom_projects_user);
+Router.put("/update_simple_project_global_task_status", update_simple_project_global_task_status_user);
 export default Router;

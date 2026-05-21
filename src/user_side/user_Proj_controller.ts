@@ -8,6 +8,7 @@ import user_subTasks_todo from "../db_controllers/db_models/user_side/user_tasks
 import user_model from "../db_controllers/db_models/user_schema";
 import message_model from "../db_controllers/db_models/user_side/socket.io.message_schema";
 import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
+import hybread_project_models from "../db_controllers/db_models/hybread_projects/hybread_project_schema";
 interface IdecodedToken {
   id: ObjectId;
   iat: number;
@@ -197,4 +198,70 @@ export const delete_msg = async (
   //  let delete_one = await delete_msg.delete_message(msgId, decodeId.id);
   // console.log(delete_one);
   // res.status(200).json({ message: "message deleted" });
+};
+
+// export const get_included_hybread_proj = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     let encodedToken: any = req.headers.authorization;
+//     console.log("Authorization token", encodedToken);
+//     let decodedId: any = jwt.verify(encodedToken, "secret_key");
+//     let id = decodedId.id;
+//     let user_custom_function = await user_project_controller(hybread_project_models);
+//     let included_project = await user_custom_function.included_hybread_project(id);
+//     console.log(included_project);
+//     res.status(200).json(included_project);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+
+// export const update_hybrid_task_status = async (req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     console.log(req.body);
+//     let { projectId, departmentId, employeeId, tasks } = req.body;
+//     if (!tasks || tasks.length === 0) return res.status(400).json({ message: "Tasks array is required" });
+//     const { H_task_id: taskId, task_status } = tasks[0];
+//     let user_custom_function = await user_project_controller(hybread_project_models);
+//     let updated_taks = await user_custom_function.update_hybread_tasks(projectId, departmentId, employeeId, taskId, task_status);
+//     res.status(200).json({ message: "Task status updated successfully" });
+//   } catch (error) {
+//     console.log(error);
+//     next(error);
+//   }
+// }
+
+export const get_simple_custom_projects_user = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const projects = await hybread_project_models.find().sort({ _id: -1 });
+    res.status(200).json(projects);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to fetch simple custom projects" });
+  }
+};
+
+export const update_simple_project_global_task_status_user = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { projectId, taskId, departmentId, status, remark } = req.body;
+    // Note: We could verify if the user actually belongs to the departmentId here,
+    // but for now we follow the existing pattern.
+    const result = await hybread_project_models.findOneAndUpdate(
+      { _id: projectId },
+      {
+        $set: {
+          "tasks.$[task].departments.$[dept].status": status,
+          "tasks.$[task].departments.$[dept].remark": remark || ""
+        }
+      },
+      { 
+        arrayFilters: [{ "task._id": taskId }, { "dept.departmentId": departmentId }],
+        new: true 
+      }
+    );
+    if (result) res.status(200).json(result);
+    else res.status(404).json({ message: "Project or task not found" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update task status" });
+  }
 };

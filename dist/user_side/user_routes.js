@@ -67,4 +67,9 @@ Router.get("/employeelists", user_Proj_controller_1.get_employees);
 Router.post("/groups/create", user_Proj_controller_1.new_group);
 Router.get("/groups/user", user_Proj_controller_1.get_included_grp);
 // Router.delete("/messages/:msgId",delete_msg)
+// hybread project_ --> emplyee routes
+// Router.get("/hybrid_projects", get_included_hybread_proj);
+// Router.put("/update_hybrid_task_status", update_hybrid_task_status);
+Router.get("/simple_custom_projects", user_Proj_controller_1.get_simple_custom_projects_user);
+Router.put("/update_simple_project_global_task_status", user_Proj_controller_1.update_simple_project_global_task_status_user);
 exports.default = Router;

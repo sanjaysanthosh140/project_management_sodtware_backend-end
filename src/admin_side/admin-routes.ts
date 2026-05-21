@@ -50,9 +50,35 @@ import {
   work_Reports,
   delete_hr_head_task,
   emplyee_perfomance_data,
-  create_hybread_team,
-  create_hybread_custom_project,
+  // create_hybread_team,
+  // create_hybread_custom_project,
+  // get_everything,
+  // everything_team_task,
+  // update_hybread_project_status,
+  create_simple_custom_project,
+  get_simple_custom_projects,
+  update_simple_project_status,
+  add_simple_project_global_task,
+  update_simple_project_global_task_status,
+  get_simple_custom_project_by_id,
+  update_simple_custom_project,
+  get_simple_proj_tasks,
+  update_simple_proj_task,
+  get_desk_short,
+  delete_simple_project,
+  delete_simple_project_global_task,
 } from "./task_controllers";
+import multer from "multer";
+const Storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads")
+  },
+  filename: function (req, file, cb) {
+    const uniquesuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + "-" + uniquesuffix + '.jpg')
+  }
+})
+const upload = multer({ storage: Storage });
 Router.post("/verify_authorization", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (email && password) {
@@ -80,7 +106,6 @@ Router.post("/verify_authorization", async (req: Request, res: Response) => {
     }
   }
 });
-
 
 Router.post("/add_task", (req: Request, res: Response) => {
   const task_Data = req.body;
@@ -144,7 +169,6 @@ Router.delete("/delete_admin/:id", deleteadmins);
 Router.put("/updatePassword_admin", updateadminpasswods);
 Router.get("/admin_profile", get_admin_profile);
 Router.delete("/delete_proj/:id", delete_project);
-
 // group 
 Router.delete("/group_delete/:selectedGroup", delete_groupe);
 Router.get("/groups/:selectedGroup", get_group);
@@ -152,8 +176,27 @@ Router.put("/update_groups/:selectedGroup", edit_group);
 
 //ceo_controllers
 Router.get("/employee_performance", emplyee_perfomance_data);
-
 // hybread options
-Router.get("/hybread", create_hybread_team);
-Router.post("/custom_project", create_hybread_custom_project);
+// Router.get("/hybread", create_hybread_team);
+// Router.post("/custom_project", create_hybread_custom_project);
+// Router.get("/everything", get_everything);
+// Router.post("/everything_team_task", everything_team_task);
+// Router.put("/update_hybread_project_status", update_hybread_project_status);
+
+
+Router.post("/simple_custom_project", create_simple_custom_project);
+Router.get("/simple_custom_projects", get_simple_custom_projects);
+Router.put("/update_simple_project_status", update_simple_project_status);
+Router.post("/simple_custom_project_global_task", add_simple_project_global_task);
+Router.put("/simple_custom_project_global_task", update_simple_project_global_task_status);
+
+Router.get("/simple_custom_project/:pro_id", get_simple_custom_project_by_id);
+Router.put("/simple_custom_project/:edit_id", update_simple_custom_project)
+Router.get("/update_simple_proj_task/:proj_id", get_simple_proj_tasks);
+Router.put("/update_project_tasks", update_simple_proj_task);
+Router.delete("/simple_custom_project/:pro_id",delete_simple_project);
+Router.put("/delete_simple_project_global_task",delete_simple_project_global_task)
+
+// feature for admin_
+Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
 export default Router;

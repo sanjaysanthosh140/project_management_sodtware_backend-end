@@ -715,7 +715,55 @@ export const adminCrudFunctions = (modules: any) => {
       } catch (error) {
         console.log(error);
       }
+    },
+    get_everything: async (decoded_token: any) => {
+      try {
+        console.log("employee token reached here  ", decoded_token);
+        let data = await modules.find({
+          "departmentsOrdered.headId": decoded_token
+        });
 
+        console.log(data);
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    everything_team_task: async (everything_team_task: any) => {
+      try {
+        console.log("everything_team_task_reached ", everything_team_task);
+        let dep_id = everything_team_task.departmentId;
+        let proj_id = new mongoose.Types.ObjectId(everything_team_task.projectId);
+        let departmet = await modules.findOneAndUpdate({
+          _id: proj_id,
+          "departmentsOrdered.departmentId": dep_id
+        }, {
+          $set: {
+            "departmentsOrdered.$.employee": everything_team_task.team
+          }
+        })
+        console.log(departmet);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    // AI Added: Updates the status of a specific department within a hybrid project
+    update_hybread_project_status: async (projectId: string, departmentId: string, status: string) => {
+      try {
+        let updated = await modules.findOneAndUpdate(
+          { 
+            _id: new mongoose.Types.ObjectId(projectId),
+            "departmentsOrdered.departmentId": departmentId
+          },
+          { 
+            $set: { "departmentsOrdered.$.dept_status": status } 
+          },
+          { new: true }
+        );
+        return updated;
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 };

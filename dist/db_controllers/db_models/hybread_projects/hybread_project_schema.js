@@ -34,6 +34,14 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
+// interface hybread_customTeam {
+//     name: string,
+//     members: [{
+//         empId: string
+//         name: string,
+//         department: string,
+//     }]
+// }
 const departmentordered = new mongoose_1.Schema({
     departmentId: {
         type: String,
@@ -50,55 +58,119 @@ const departmentordered = new mongoose_1.Schema({
     headName: {
         type: String,
         required: true
-    }
-});
-const customTeamMembers = new mongoose_1.Schema({
-    name: {
-        type: String,
-        required: true
     },
-    members: [{
-            empId: {
-                type: String,
-                required: true
-            },
-            name: {
-                type: String,
-                required: true
-            },
-            department: {
-                type: String,
-                required: true
-            }
-        }]
+    // dept_status: {
+    //     type: String,
+    //     default: "pending",
+    //     required: false,
+    // },
+    // pending_reason: {
+    //     type: String,
+    //     required: false
+    // }
+    // employee: {
+    //     employeeId: {
+    //         type: String,
+    //         required: false
+    //     },
+    //     name: {
+    //         type: String,
+    //         required: false
+    //     },
+    //     tasks: [
+    //         {
+    //             title: {
+    //                 type: String,
+    //                 required: false,
+    //             },
+    //             hours: {
+    //                 type: String,
+    //                 required: false,
+    //             },
+    //             date: {
+    //                 type: String,
+    //                 required: false,
+    //             },
+    //             H_task_id: {
+    //                 type: String,
+    //                 require: false
+    //             },
+    //             task_status: {
+    //                 type: String,
+    //                 default: "pending",
+    //                 required: false
+    //             }
+    //         }
+    //     ]
+    // }
 });
+// const customTeamMembers = new Schema<hybread_customTeam>({
+//     name: {
+//         type: String,
+//         required: true
+//     },
+//     members: [{
+//         empId: {
+//             type: String,
+//             required: true
+//         },
+//         name: {
+//             type: String,
+//             required: true
+//         },
+//         department: {
+//             type: String,
+//             required: true
+//         }
+//     }]
+// })
 const hybread_project_schema = new mongoose_1.Schema({
-    fileNo: {
+    // fileNo: {
+    //     type: String,
+    //     required: true
+    // },
+    // date: {
+    //     type: String,
+    //     required: true
+    // },
+    // channelName: {
+    //     type: String,
+    //     required: true
+    // },
+    // projectOption: {
+    //     type: String,
+    //     required: true
+    // },
+    // title: {
+    //     type: String,
+    //     required: true
+    // },
+    // tump: {
+    //     type: String,
+    //     required: true
+    // },
+    projectTilte: {
         type: String,
         required: true
     },
-    date: {
-        type: String,
-        required: true
+    createdAt: {
+        type: Date,
+        default: Date.now
     },
-    channelName: {
-        type: String,
-        required: true
-    },
-    projectOption: {
-        type: String,
-        required: true
-    },
-    title: {
-        type: String,
-        required: true
-    },
-    tump: {
-        type: String,
-        required: true
-    },
-    departmentsOrdered: [departmentordered],
-    customTeam: customTeamMembers
+    departments: [departmentordered],
+    tasks: [{
+            date: { type: String, required: false },
+            contentType: { type: String, required: false },
+            content: { type: String, required: true },
+            createdAt: { type: Date, default: Date.now },
+            departments: [{
+                    departmentId: { type: String, required: true },
+                    departmentName: { type: String, required: true },
+                    status: { type: String, default: "pending" },
+                    remark: { type: String, default: "" }
+                }]
+        }]
+    // customTeam: customTeamMembers
 });
 const hybread_project_models = mongoose_1.default.model("hybread_projects", hybread_project_schema);
 exports.default = hybread_project_models;

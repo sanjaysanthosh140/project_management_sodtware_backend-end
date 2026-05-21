@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/multer": "^2.1.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",
     "cors": "^2.8.5",
@@ -23,6 +24,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
     "mongoose": "^9.1.3",
+    "multer": "^2.1.1",
     "node-fetch": "^3.3.2",
     "nodemon": "^3.1.11",
     "npm": "^11.12.0",
@@ -32,7 +34,9 @@
     "passport-google-oidc": "^0.1.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "socket.io": "^4.8.3"
+    "socket.io": "^4.8.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

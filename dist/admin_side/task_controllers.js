@@ -3,7 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.get_simple_custom_projects = exports.create_simple_custom_project = exports.update_hybread_project_status = exports.everything_team_task = exports.get_everything = exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
+exports.get_desk_short = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -16,6 +17,7 @@ const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_sc
 const assigen_tasks_1 = __importDefault(require("../db_controllers/db_models/admin_side/assigen-tasks"));
 const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
 const hybread_project_schema_1 = __importDefault(require("../db_controllers/db_models/hybread_projects/hybread_project_schema"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const task_controller = (task_data, task_models) => {
     return new Promise((resolve, rejects) => {
         const task_obj = new task_models(task_data);
@@ -502,3 +504,262 @@ const create_hybread_custom_project = async (req, res, next) => {
     let stored_data = await store_custom_proj_data.create_custom_project(custom_proj_data);
 };
 exports.create_hybread_custom_project = create_hybread_custom_project;
+const get_everything = async (req, res, next) => {
+    try {
+        let encodedToken = req.headers.authorization;
+        let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+        console.log(decodedToken.id);
+        const everything_data = (0, admin_crud_1.adminCrudFunctions)(hybread_project_schema_1.default);
+        const data = await everything_data.get_everything(decodedToken.id);
+        if (data) {
+            res.status(200).json(data);
+        }
+        else {
+            res.status(404).json({ message: "no data found " });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.get_everything = get_everything;
+const everything_team_task = async (req, res, next) => {
+    const team_task_data = req.body;
+    // console.log(team_task_data.team[2].tasks);
+    const admin_crud_function = (0, admin_crud_1.adminCrudFunctions)(hybread_project_schema_1.default);
+    const E_team_task = await admin_crud_function.everything_team_task(team_task_data);
+};
+exports.everything_team_task = everything_team_task;
+// AI Added: Controller for updating department-level project status
+const update_hybread_project_status = async (req, res, next) => {
+    try {
+        const { projectId, departmentId, status } = req.body;
+        const admin_crud_function = (0, admin_crud_1.adminCrudFunctions)(hybread_project_schema_1.default);
+        const updated = await admin_crud_function.update_hybread_project_status(projectId, departmentId, status);
+        res.status(200).json(updated);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "failed to update project status" });
+    }
+};
+exports.update_hybread_project_status = update_hybread_project_status;
+const create_simple_custom_project = async (req, res, next) => {
+    try {
+        let projectData = req.body;
+        const newProject = new hybread_project_schema_1.default(projectData);
+        const savedProject = await newProject.save();
+        res.status(201).json(savedProject);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to create simple custom project" });
+    }
+};
+exports.create_simple_custom_project = create_simple_custom_project;
+const get_simple_custom_projects = async (req, res, next) => {
+    try {
+        const projects = await hybread_project_schema_1.default.find().sort({ _id: -1 });
+        res.status(200).json(projects);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch simple custom projects" });
+    }
+};
+exports.get_simple_custom_projects = get_simple_custom_projects;
+const update_simple_project_status = async (req, res, next) => {
+    try {
+        const { projectId, departmentId, status, pending_reason } = req.body;
+        const result = await hybread_project_schema_1.default.findOneAndUpdate({ _id: projectId, "departments.departmentId": departmentId }, {
+            $set: {
+                "departments.$.dept_status": status,
+                "departments.$.pending_reason": pending_reason || "",
+            },
+        }, { new: true });
+        if (result)
+            res.status(200).json(result);
+        else
+            res.status(404).json({ message: "Project or department not found" });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to update project status" });
+    }
+};
+exports.update_simple_project_status = update_simple_project_status;
+const add_simple_project_global_task = async (req, res, next) => {
+    try {
+        const { projectId, content, date, contentType, departments } = req.body;
+        const result = await hybread_project_schema_1.default.findByIdAndUpdate(projectId, {
+            $push: {
+                tasks: { content, date, contentType, departments },
+            },
+        }, { new: true });
+        if (result)
+            res.status(200).json(result);
+        else
+            res.status(404).json({ message: "Project not found" });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to add task" });
+    }
+};
+exports.add_simple_project_global_task = add_simple_project_global_task;
+const update_simple_project_global_task_status = async (req, res, next) => {
+    try {
+        const { projectId, taskId, departmentId, status, remark } = req.body;
+        let encodedToken = req.headers.authorization;
+        let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+        console.log(decodedToken);
+        const result = await hybread_project_schema_1.default.findOneAndUpdate({ _id: projectId }, {
+            $set: {
+                "tasks.$[task].departments.$[dept].status": status,
+                "tasks.$[task].departments.$[dept].remark": remark || "",
+            },
+        }, {
+            arrayFilters: [
+                { "task._id": taskId },
+                { "dept.departmentId": departmentId },
+            ],
+            new: true,
+        });
+        if (result)
+            res.status(200).json(result);
+        else
+            res.status(404).json({ message: "Project not found" });
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to update task status" });
+    }
+};
+exports.update_simple_project_global_task_status = update_simple_project_global_task_status;
+const get_simple_custom_project_by_id = async (req, res, next) => {
+    try {
+        let project_id = req.params.pro_id;
+        console.log(project_id);
+        let project = await hybread_project_schema_1.default.findById({
+            _id: new mongoose_1.default.Types.ObjectId(project_id),
+        });
+        console.log(project);
+        res.status(200).json({ project });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.get_simple_custom_project_by_id = get_simple_custom_project_by_id;
+const update_simple_custom_project = async (req, res, next) => {
+    try {
+        let project_id = req.params.edit_id;
+        let prod_data = req.body;
+        console.log(project_id, prod_data);
+        let data = await hybread_project_schema_1.default.findByIdAndUpdate({ _id: new mongoose_1.default.Types.ObjectId(project_id) }, {
+            $set: {
+                projectTilte: prod_data.projectTilte,
+                departments: prod_data.departments,
+            },
+        });
+        if (data) {
+            res.status(200).json({ message: "successfully updated" });
+        }
+        else {
+            res.status(404).json({ message: "project updating failed" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.update_simple_custom_project = update_simple_custom_project;
+const get_simple_proj_tasks = async (req, res, next) => {
+    try {
+        let proj_id = req.params.proj_id;
+        let proj_task_data = await hybread_project_schema_1.default.findById({
+            _id: new mongoose_1.default.Types.ObjectId(proj_id),
+        });
+        console.log(proj_task_data);
+        res.status(200).json(proj_task_data);
+    }
+    catch (error) {
+        console.log(error);
+        res
+            .status(500)
+            .json({ message: "Failed to retrieve project tasks", error });
+    }
+};
+exports.get_simple_proj_tasks = get_simple_proj_tasks;
+const update_simple_proj_task = async (req, res, next) => {
+    try {
+        let task_data = req.body;
+        let proj_id = task_data.projectId;
+        let task_id = task_data.taskId;
+        console.log(task_id);
+        let updated = await hybread_project_schema_1.default.findOneAndUpdate({
+            _id: new mongoose_1.default.Types.ObjectId(proj_id),
+            "tasks._id": new mongoose_1.default.Types.ObjectId(task_id),
+        }, {
+            $set: {
+                "tasks.$.date": task_data.date,
+                "tasks.$.contentType": task_data.contentType,
+                "tasks.$.content": task_data.content,
+            },
+        });
+        if (updated) {
+            res.status(200).json({ message: "successfully updated task" });
+        }
+        else {
+            res.status(404).json({ message: "task updaton faild" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.update_simple_proj_task = update_simple_proj_task;
+const delete_simple_project = async (req, res, next) => {
+    try {
+        console.log("call reaced");
+        let id = req.params.pro_id;
+        const resposnse = await hybread_project_schema_1.default.findOneAndDelete({
+            _id: new mongoose_1.default.Types.ObjectId(id),
+        });
+        console.log(resposnse);
+        res.status(200).json({ message: "deleted successfully" });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.delete_simple_project = delete_simple_project;
+const delete_simple_project_global_task = async (req, res, next) => {
+    try {
+        let { projectId, taskId } = req.body;
+        console.log(projectId, taskId);
+        let data = await hybread_project_schema_1.default.findOne({
+            _id: new mongoose_1.default.Types.ObjectId(projectId),
+            "tasks._id": new mongoose_1.default.Types.ObjectId(taskId),
+        });
+        let tasks = data?.tasks;
+        let index = tasks?.findIndex((i) => i._id == taskId);
+        tasks?.splice(index, 1);
+        console.log(tasks);
+        let output = await hybread_project_schema_1.default.findOneAndUpdate({
+            _id: new mongoose_1.default.Types.ObjectId(projectId),
+            "tasks._id": new mongoose_1.default.Types.ObjectId(taskId),
+        }, {
+            $set: { tasks: tasks },
+        });
+        res.status(200).json({ message: "task removed successfully" });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.delete_simple_project_global_task = delete_simple_project_global_task;
+const get_desk_short = async (req, res, next) => {
+    console.log(req.file);
+};
+exports.get_desk_short = get_desk_short;
