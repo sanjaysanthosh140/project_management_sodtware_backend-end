@@ -45,19 +45,19 @@ const mongoose_1 = __importStar(require("mongoose"));
 const departmentordered = new mongoose_1.Schema({
     departmentId: {
         type: String,
-        required: true
+        required: true,
     },
     departmentName: {
         type: String,
-        required: true
+        required: true,
     },
     headId: {
         type: String,
-        required: true
+        required: true,
     },
     headName: {
         type: String,
-        required: true
+        required: true,
     },
     // dept_status: {
     //     type: String,
@@ -151,25 +151,30 @@ const hybread_project_schema = new mongoose_1.Schema({
     // },
     projectTilte: {
         type: String,
-        required: true
+        required: true,
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     departments: [departmentordered],
-    tasks: [{
+    tasks: [
+        {
             date: { type: String, required: false },
             contentType: { type: String, required: false },
             content: { type: String, required: true },
             createdAt: { type: Date, default: Date.now },
-            departments: [{
+            departments: [
+                {
                     departmentId: { type: String, required: true },
                     departmentName: { type: String, required: true },
                     status: { type: String, default: "pending" },
-                    remark: { type: String, default: "" }
-                }]
-        }]
+                    date: { type: String, require: false },
+                    remark: { type: String, default: "" },
+                },
+            ],
+        },
+    ],
     // customTeam: customTeamMembers
 });
 const hybread_project_models = mongoose_1.default.model("hybread_projects", hybread_project_schema);

@@ -860,16 +860,17 @@ export const update_simple_project_global_task_status = async (
   next: NextFunction,
 ) => {
   try {
-    const { projectId, taskId, departmentId, status, remark } = req.body;
+    const { projectId, taskId, departmentId, status, date, remark } = req.body;
     let encodedToken: any = req.headers.authorization;
     let decodedToken: any = jwt.verify(encodedToken, "secret_key");
-    console.log(decodedToken);
+    console.log(date);
     const result = await hybread_project_models.findOneAndUpdate(
       { _id: projectId },
       {
         $set: {
           "tasks.$[task].departments.$[dept].status": status,
           "tasks.$[task].departments.$[dept].remark": remark || "",
+           "tasks.$[task].departments.$[dept].date": date
         },
       },
       {

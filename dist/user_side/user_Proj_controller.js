@@ -34,6 +34,7 @@ const emp_included_proj = async (req, res, next) => {
     }
 };
 exports.emp_included_proj = emp_included_proj;
+//   this function use in both emplyee dashboar and ceo dashboar for fetch tasks tha't why targetEmployeeId veriable is user here 
 const emp_proj_tasks = async (req, res, next) => {
     try {
         let id = req.params.projectId;
@@ -80,6 +81,7 @@ const add_multiple_todos = async (req, res, next) => {
     }
 };
 exports.add_multiple_todos = add_multiple_todos;
+// this function use in both emplyee dashboar and ceo dashboar for fetch tasks tha't why targetEmployeeId veriable is user here 
 const achive_todo_list = async (req, res, next) => {
     try {
         const selectedEmployeeId = req.query.empId;

@@ -39,7 +39,7 @@ export const emp_included_proj = async (
     return next(error);
   }
 };
-
+//   this function use in both emplyee dashboar and ceo dashboar for fetch tasks tha't why targetEmployeeId veriable is user here 
 export const emp_proj_tasks = async (
   req: Request,
   res: Response,
@@ -92,6 +92,7 @@ export const add_multiple_todos = async (
     return error;
   }
 };
+// this function use in both emplyee dashboar and ceo dashboar for fetch tasks tha't why targetEmployeeId veriable is user here 
 
 export const achive_todo_list = async (
   req: Request,
@@ -253,9 +254,9 @@ export const update_simple_project_global_task_status_user = async (req: Request
           "tasks.$[task].departments.$[dept].remark": remark || ""
         }
       },
-      { 
+      {
         arrayFilters: [{ "task._id": taskId }, { "dept.departmentId": departmentId }],
-        new: true 
+        new: true
       }
     );
     if (result) res.status(200).json(result);

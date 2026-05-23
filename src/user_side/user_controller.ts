@@ -7,7 +7,7 @@ export const user_project_controller = async (modules: any) => {
   //   task_id: string,
   //   user_subTaks: []
   // }
-  interface tosolist {
+  interface todolist {
     todo_id: String;
     title: String;
     status: String;
@@ -16,7 +16,7 @@ export const user_project_controller = async (modules: any) => {
   type user_tasks_todo_schema = {
     project_id: string;
     task_id: string;
-    user_subTaks: [tosolist];
+    user_subTaks: [todolist];
   };
 
   type admin_roles = [
@@ -33,7 +33,6 @@ export const user_project_controller = async (modules: any) => {
       let data = await modules.find({ "teamMembers.userId": id });
       return data;
     },
-
     employee_assigned_tasks: async (id: string, projectId: string) => {
       // console.log(id, projectId);
       try {
@@ -217,6 +216,7 @@ export const user_project_controller = async (modules: any) => {
       }
     },
     // AI Modified: Updated to use arrayFilters for deep nested task status updates
+    //  this code is currenlty not using don't mind it 
     update_hybread_tasks: async (projectId: string, departmentId: string, employeeId: string, taskId: string, status: string) => {
       try {
         let update_task_status =

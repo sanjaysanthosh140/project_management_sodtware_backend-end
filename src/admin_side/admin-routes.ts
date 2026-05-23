@@ -183,7 +183,6 @@ Router.get("/employee_performance", emplyee_perfomance_data);
 // Router.post("/everything_team_task", everything_team_task);
 // Router.put("/update_hybread_project_status", update_hybread_project_status);
 
-
 Router.post("/simple_custom_project", create_simple_custom_project);
 Router.get("/simple_custom_projects", get_simple_custom_projects);
 Router.put("/update_simple_project_status", update_simple_project_status);
@@ -194,8 +193,8 @@ Router.get("/simple_custom_project/:pro_id", get_simple_custom_project_by_id);
 Router.put("/simple_custom_project/:edit_id", update_simple_custom_project)
 Router.get("/update_simple_proj_task/:proj_id", get_simple_proj_tasks);
 Router.put("/update_project_tasks", update_simple_proj_task);
-Router.delete("/simple_custom_project/:pro_id",delete_simple_project);
-Router.put("/delete_simple_project_global_task",delete_simple_project_global_task)
+Router.delete("/simple_custom_project/:pro_id", delete_simple_project);
+Router.put("/delete_simple_project_global_task", delete_simple_project_global_task)
 
 // feature for admin_
 Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
