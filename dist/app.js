@@ -14,7 +14,11 @@ const cors_1 = __importDefault(require("cors"));
 let port = 8080;
 const socket_io_1 = require("./user_side/socket.io");
 socket_io_1.app.use((0, cors_1.default)({
-    origin: ["http://localhost:5173", "https://alkor-erp.web.app", "https://alkor-erp-e3b45.web.app"],
+    origin: [
+        "http://localhost:5173",
+        "https://alkor-erp-e3b45.web.app",
+        "https://alkor-erp.web.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true
@@ -32,13 +36,13 @@ socket_io_1.app.use((0, cors_1.default)({
 // },
 // }),
 // );
-// 
+//
 // app.use(passport.initialize());
 // app.use(passport.session());
-// 
+//
 socket_io_1.app.use(express_1.default.json());
 socket_io_1.app.use("/", user_routes_1.default);
 socket_io_1.app.use("/admin", admin_routes_1.default);
-socket_io_1.server.listen(port, '0.0.0.0', () => {
+socket_io_1.server.listen(port, "0.0.0.0", () => {
     console.log(`server is running on ${port}`);
 });

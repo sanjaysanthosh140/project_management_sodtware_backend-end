@@ -7,10 +7,14 @@ import cors from "cors";
 // import express_session from "express-session";
 // const app = express();
 let port = 8080;
-import { io, server, app } from "./user_side/socket.io"
+import { io, server, app } from "./user_side/socket.io";
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://alkor-erp.web.app","https://alkor-erp-e3b45.web.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://alkor-erp-e3b45.web.app",
+      "https://alkor-erp.web.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     //credentials: true
@@ -30,14 +34,14 @@ connectiion();
 // },
 // }),
 // );
-// 
+//
 // app.use(passport.initialize());
 // app.use(passport.session());
-// 
+//
 app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
 
-server.listen(port, '0.0.0.0', () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`server is running on ${port}`);
 });
