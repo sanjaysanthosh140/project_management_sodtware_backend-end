@@ -30,7 +30,7 @@ export const user_project_controller = async (modules: any) => {
   ];
   return {
     user_assigned_projects: async (id: string) => {
-      let data = await modules.find({ "teamMembers.userId": id });
+      let data = await modules.find({ "teamMembers.userId": id }).sort({_id:-1});
       return data;
     },
     employee_assigned_tasks: async (id: string, projectId: string) => {
