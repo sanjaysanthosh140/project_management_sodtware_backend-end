@@ -10,7 +10,7 @@ const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_sc
 const user_project_controller = async (modules) => {
     return {
         user_assigned_projects: async (id) => {
-            let data = await modules.find({ "teamMembers.userId": id });
+            let data = await modules.find({ "teamMembers.userId": id }).sort({_id:-1});
             return data;
         },
         employee_assigned_tasks: async (id, projectId) => {
