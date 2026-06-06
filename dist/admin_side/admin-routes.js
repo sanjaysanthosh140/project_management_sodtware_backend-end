@@ -128,6 +128,12 @@ Router.get("/update_simple_proj_task/:proj_id", task_controllers_1.get_simple_pr
 Router.put("/update_project_tasks", task_controllers_1.update_simple_proj_task);
 Router.delete("/simple_custom_project/:pro_id", task_controllers_1.delete_simple_project);
 Router.put("/delete_simple_project_global_task", task_controllers_1.delete_simple_project_global_task);
+// Accounts management feacture 
+Router.post("/add_to_accounts", task_controllers_1.add_to_accounts);
+Router.get("/billings", task_controllers_1.account_billings);
+Router.put("/update_account_billings_data/:pro_id", task_controllers_1.edit_accountBilling);
+Router.delete("/remove_account_data/:id", task_controllers_1.delete_account_datas);
+// Router.put("/update_account_billings_data/:pro_id",)
 // feature for admin_
 Router.post("/desktop_shorts", upload.single('short'), task_controllers_1.get_desk_short);
 exports.default = Router;

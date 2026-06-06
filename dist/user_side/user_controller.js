@@ -7,10 +7,11 @@ exports.user_project_controller = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_schema");
+const mongoose_2 = require("mongoose");
 const user_project_controller = async (modules) => {
     return {
         user_assigned_projects: async (id) => {
-            let data = await modules.find({ "teamMembers.userId": id });
+            let data = await modules.find({ "teamMembers.userId": id }).sort({ _id: -1 });
             return data;
         },
         employee_assigned_tasks: async (id, projectId) => {
@@ -119,8 +120,17 @@ const user_project_controller = async (modules) => {
         achive_user_profile: async (id) => {
             let datas = jsonwebtoken_1.default.verify(id, "secret_key");
             let ids = datas.id;
+            console.log("id", ids);
             let data = await modules.find({ _id: ids });
-            return data;
+            if (data.length === 0 || null || undefined) {
+                let data = await admin_roles_schema_1.admin_roles_models.findById({
+                    _id: new mongoose_2.Types.ObjectId(ids),
+                });
+                return data;
+            }
+            else {
+                return data;
+            }
         },
         employeeList: async (id) => {
             let check_emp = await admin_roles_schema_1.admin_roles_models.find({
@@ -176,7 +186,9 @@ const user_project_controller = async (modules) => {
         included_hybread_project: async (empid) => {
             try {
                 console.log(empid);
-                let inlcuded_proj_ = await modules.find({ "departmentsOrdered.employee.employeeId": empid });
+                let inlcuded_proj_ = await modules.find({
+                    "departmentsOrdered.employee.employeeId": empid,
+                });
                 console.log(inlcuded_proj_);
                 return inlcuded_proj_;
             }
@@ -185,7 +197,7 @@ const user_project_controller = async (modules) => {
             }
         },
         // AI Modified: Updated to use arrayFilters for deep nested task status updates
-        //  this code is currenlty not using don't mind it 
+        //  this code is currenlty not using don't mind it
         update_hybread_tasks: async (projectId, departmentId, employeeId, taskId, status) => {
             try {
                 let update_task_status = await modules.findOneAndUpdate({
@@ -194,29 +206,29 @@ const user_project_controller = async (modules) => {
                     "departmentsOrdered.employee.employeeId": employeeId,
                 }, {
                     $set: {
-                        "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status": status
-                    }
+                        "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status": status,
+                    },
                 }, {
                     arrayFilters: [
                         {
-                            "dept.departmentId": departmentId
+                            "dept.departmentId": departmentId,
                         },
                         {
-                            "emp.employeeId": employeeId
+                            "emp.employeeId": employeeId,
                         },
                         {
-                            "task.H_task_id": taskId
-                        }
+                            "task.H_task_id": taskId,
+                        },
                     ],
-                    new: true
+                    new: true,
                 });
                 console.log(update_task_status);
             }
             catch (error) {
                 console.log(error);
             }
-        }
-        // 
+        },
+        //
     };
 };
 exports.user_project_controller = user_project_controller;

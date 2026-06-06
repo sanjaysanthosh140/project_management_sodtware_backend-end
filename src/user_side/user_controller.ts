@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { admin_roles_models } from "../db_controllers/db_models/admin_roles_schema";
+import { Types } from "mongoose";
 export const user_project_controller = async (modules: any) => {
   // interface user_todolist {
   //   project_id: string,
@@ -30,7 +31,7 @@ export const user_project_controller = async (modules: any) => {
   ];
   return {
     user_assigned_projects: async (id: string) => {
-      let data = await modules.find({ "teamMembers.userId": id });
+      let data = await modules.find({ "teamMembers.userId": id }).sort({_id:-1});
       return data;
     },
     employee_assigned_tasks: async (id: string, projectId: string) => {
@@ -81,8 +82,9 @@ export const user_project_controller = async (modules: any) => {
               "employeeTasks._id": 1,
             },
           },
-        ]);
-        return data;
+        ])
+       
+        return data
       } catch (error) {
         console.log(error);
         return [];
@@ -147,8 +149,16 @@ export const user_project_controller = async (modules: any) => {
     achive_user_profile: async (id: any) => {
       let datas: any = jwt.verify(id, "secret_key");
       let ids = datas.id;
+      console.log("id", ids);
       let data = await modules.find({ _id: ids });
-      return data;
+      if (data.length === 0 || null || undefined) {
+        let data = await admin_roles_models.findById({
+          _id: new Types.ObjectId(ids),
+        });
+        return data;
+      } else {
+        return data;
+      }
     },
 
     employeeList: async (id: any) => {
@@ -195,7 +205,7 @@ export const user_project_controller = async (modules: any) => {
     },
 
     delete_message: async (id: string, sender: any) => {
-      let encodedjwt: any = sender
+      let encodedjwt: any = sender;
       console.log("this form delete msg function socket.io", id, sender);
       let userId: any = jwt.verify(encodedjwt, "secret_key");
       let msgdelete = await modules.findByIdAndDelete({
@@ -208,7 +218,9 @@ export const user_project_controller = async (modules: any) => {
     included_hybread_project: async (empid: string) => {
       try {
         console.log(empid);
-        let inlcuded_proj_ = await modules.find({ "departmentsOrdered.employee.employeeId": empid })
+        let inlcuded_proj_ = await modules.find({
+          "departmentsOrdered.employee.employeeId": empid,
+        });
         console.log(inlcuded_proj_);
         return inlcuded_proj_;
       } catch (error) {
@@ -216,54 +228,53 @@ export const user_project_controller = async (modules: any) => {
       }
     },
     // AI Modified: Updated to use arrayFilters for deep nested task status updates
-    //  this code is currenlty not using don't mind it 
-    update_hybread_tasks: async (projectId: string, departmentId: string, employeeId: string, taskId: string, status: string) => {
+    //  this code is currenlty not using don't mind it
+    update_hybread_tasks: async (
+      projectId: string,
+      departmentId: string,
+      employeeId: string,
+      taskId: string,
+      status: string,
+    ) => {
       try {
-        let update_task_status =
-          await modules.findOneAndUpdate(
+        let update_task_status = await modules.findOneAndUpdate(
+          {
+            _id: new mongoose.Types.ObjectId(projectId),
+            "departmentsOrdered.departmentId": departmentId,
+            "departmentsOrdered.employee.employeeId": employeeId,
+          },
 
-            {
-              _id: new mongoose.Types.ObjectId(projectId),
-              "departmentsOrdered.departmentId": departmentId,
-              "departmentsOrdered.employee.employeeId": employeeId,
+          {
+            $set: {
+              "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status":
+                status,
             },
+          },
 
-            {
-              $set: {
-                "departmentsOrdered.$[dept].employee.$[emp].tasks.$[task].task_status": status
-              }
-            },
+          {
+            arrayFilters: [
+              {
+                "dept.departmentId": departmentId,
+              },
 
-            {
-              arrayFilters: [
+              {
+                "emp.employeeId": employeeId,
+              },
 
-                {
-                  "dept.departmentId": departmentId
-                },
+              {
+                "task.H_task_id": taskId,
+              },
+            ],
 
-                {
-                  "emp.employeeId": employeeId
-                },
+            new: true,
+          },
+        );
 
-                {
-                  "task.H_task_id": taskId
-                }
-
-              ],
-
-              new: true
-            }
-
-          )
-
-
-        console.log(update_task_status)
+        console.log(update_task_status);
       } catch (error) {
         console.log(error);
       }
-    }
-    // 
-
+    },
+    //
   };
 };
-

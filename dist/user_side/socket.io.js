@@ -16,7 +16,11 @@ const server = http_1.default.createServer(app);
 exports.server = server;
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: ["http://localhost:5173", "https://alkor-erp.web.app", "https://alkor-erp-e3b45.web.app"],
+        origin: [
+            "http://localhost:5173",
+            "https://alkor-erp.web.app",
+            "https://alkor-erp-e3b45.web.app",
+        ],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
@@ -69,5 +73,13 @@ io.on("connection", (socket) => {
     });
     socket.on("disconnect", () => {
         console.log("a user disconnected", socket.id);
+    });
+    socket.on("join_department", (department) => {
+        console.log("joined department", department);
+        socket.join(department);
+    });
+    socket.on("register", (user_id) => {
+        console.log(typeof user_id);
+        socket.join(user_id);
     });
 });

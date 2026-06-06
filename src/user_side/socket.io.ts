@@ -8,7 +8,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173","https://alkor-erp.web.app","https://alkor-erp-e3b45.web.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://alkor-erp.web.app",
+      "https://alkor-erp-e3b45.web.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -18,7 +22,7 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
   let token = socket.handshake.auth.token;
-  console.log("message token",token);
+  console.log("message token", token);
   socket.on("join_room", (room) => {
     socket.join(room);
     console.log(`User ${socket.id} joined room: ${room}`);
@@ -64,10 +68,19 @@ io.on("connection", (socket) => {
       });
     }
   });
-  socket.on("disconnect", () => {   
+  socket.on("disconnect", () => {
     console.log("a user disconnected", socket.id);
+  });
+
+  socket.on("join_department", (department) => {
+    console.log("joined department", department);
+    socket.join(department);
+  });
+
+  socket.on("register", (user_id) => {
+    console.log(typeof user_id);
+    socket.join(user_id);
   });
 });
 
 export { io, server, app };
-    

@@ -24,5 +24,5 @@ const group_schema = new Schema({
     require: true,
   },
 });
-
+ 
 export const group_model = mongoose.model<group>("Group", group_schema);

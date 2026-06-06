@@ -155,9 +155,9 @@ export const adminCrudFunctions = (modules: any) => {
         color: color,
         description: description,
       });
-
-      let newDep = await departmentObj.save();
-      return newDep;
+            
+       let newDep = await departmentObj.save();
+       return newDep;
     },
 
     fetchDepartments: async () => {
@@ -347,7 +347,7 @@ export const adminCrudFunctions = (modules: any) => {
     },
     fetchHeadProjects: async (id: string) => {
       console.log("head id", id);
-      let data = await modules.find({ head_id: id });
+      let data = await modules.find({ head_id: id })
       console.log("data", data);
       return data;
     },

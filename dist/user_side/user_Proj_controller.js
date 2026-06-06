@@ -104,9 +104,10 @@ exports.achive_todo_list = achive_todo_list;
 const employee_profile = async (req, res, next) => {
     let id = req.headers.authorization;
     try {
+        console.log("function employee profile called##############################");
         let employee_profile = await (0, user_controller_1.user_project_controller)(user_schema_1.default);
         let employee_data = await employee_profile.achive_user_profile(id);
-        console.log(employee_data);
+        // console.log(employee_data);
         res.status(200).send(employee_data);
     }
     catch (error) {

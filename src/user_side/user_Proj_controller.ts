@@ -124,9 +124,10 @@ export const employee_profile = async (
 ) => {
   let id = req.headers.authorization;
   try {
+    console.log("function employee profile called##############################");
     let employee_profile = await user_project_controller(user_model);
     let employee_data = await employee_profile.achive_user_profile(id);
-    console.log(employee_data);
+    // console.log(employee_data);
     res.status(200).send(employee_data);
   } catch (error) {
     console.log(error);

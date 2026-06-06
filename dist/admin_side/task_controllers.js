@@ -1,10 +1,43 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.get_simple_custom_projects = exports.create_simple_custom_project = exports.update_hybread_project_status = exports.everything_team_task = exports.get_everything = exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
-exports.get_desk_short = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
+exports.get_desk_short = exports.delete_account_datas = exports.edit_accountBilling = exports.account_billings = exports.add_to_accounts = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -17,7 +50,9 @@ const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_sc
 const assigen_tasks_1 = __importDefault(require("../db_controllers/db_models/admin_side/assigen-tasks"));
 const scoket_io_group_schema_1 = require("../db_controllers/db_models/user_side/scoket.io.group_schema");
 const hybread_project_schema_1 = __importDefault(require("../db_controllers/db_models/hybread_projects/hybread_project_schema"));
-const mongoose_1 = __importDefault(require("mongoose"));
+const mongoose_1 = __importStar(require("mongoose"));
+const socket_io_1 = require("../user_side/socket.io");
+const billing_proj_accounts_1 = __importDefault(require("../db_controllers/db_models/admin_side/billing_proj_accounts"));
 const task_controller = (task_data, task_models) => {
     return new Promise((resolve, rejects) => {
         const task_obj = new task_models(task_data);
@@ -93,6 +128,7 @@ const updateEmplye = async (req, res, next) => {
 exports.updateEmplye = updateEmplye;
 const createDepartments = async (req, res, next) => {
     const { id, title, color, description } = req.body;
+    console.log(req.body);
     const createDepartments = (0, admin_crud_1.adminCrudFunctions)(department_schema_1.default);
     let departmentObj = await createDepartments.createDepartments(id, title, color, description);
     console.log("after successfully added", departmentObj);
@@ -213,6 +249,21 @@ const create_pojects = async (req, res, next) => {
     // console.log("head", decodedToken.id, projectData);
     const DepProject = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
     let project = await DepProject.departmentProjects(decodedToken.id, projectData);
+    if (project) {
+        try {
+            // determine head's department and broadcast to that room
+            console.log(project);
+            const headProfile = await admin_roles_schema_1.admin_roles_models
+                .findById(decodedToken.id)
+                .lean();
+            const deptRoom = headProfile?.department || "IT";
+            socket_io_1.io.to(deptRoom).emit("new_project", project);
+        }
+        catch (e) {
+            console.error("Failed to emit new_project socket event", e);
+        }
+    }
+    console.log("new project data", project.description, project.title);
     res.status(200).json(project);
 };
 exports.create_pojects = create_pojects;
@@ -276,6 +327,10 @@ const create_hr_head_task = async (req, res, next) => {
             assignedByName,
         });
         const savedTask = await taskObj.save();
+        if (savedTask) {
+            socket_io_1.io.to(headId).emit("assigned_task", savedTask);
+            console.log("task assigned head id ", headId);
+        }
         res.status(200).json(savedTask);
     }
     catch (error) {
@@ -389,6 +444,17 @@ const delete_project = async (req, res, next) => {
         const delete_project = (0, admin_crud_1.adminCrudFunctions)(department_projects_1.default);
         const deleted_proj = await delete_project.delete_project(id);
         console.log(deleted_proj);
+        if (deleted_proj) {
+            try {
+                const headId = deleted_proj.head_id;
+                const headProfile = await admin_roles_schema_1.admin_roles_models.findById(headId).lean();
+                const deptRoom = headProfile?.department || "IT";
+                socket_io_1.io.to(deptRoom).emit("delete_project", deleted_proj);
+            }
+            catch (e) {
+                console.error("Failed to emit delete_project socket event", e);
+            }
+        }
         res.status(200).json({ message: "deleted successfully" });
     }
     catch (error) {
@@ -544,11 +610,21 @@ const update_hybread_project_status = async (req, res, next) => {
     }
 };
 exports.update_hybread_project_status = update_hybread_project_status;
+//   adminCrudFunction using stoped here because implement cursor just automate the crud operation wroting
 const create_simple_custom_project = async (req, res, next) => {
     try {
+        let encodedToken = req.headers.authorization;
+        let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
         let projectData = req.body;
         const newProject = new hybread_project_schema_1.default(projectData);
         const savedProject = await newProject.save();
+        if (savedProject) {
+            let head_data = await admin_roles_schema_1.admin_roles_models.findOne({
+                _id: new mongoose_1.Types.ObjectId(decodedToken.id),
+            });
+            let department = head_data.department;
+            socket_io_1.io.to(department).emit("custom_project", savedProject);
+        }
         res.status(201).json(savedProject);
     }
     catch (error) {
@@ -617,7 +693,7 @@ const update_simple_project_global_task_status = async (req, res, next) => {
             $set: {
                 "tasks.$[task].departments.$[dept].status": status,
                 "tasks.$[task].departments.$[dept].remark": remark || "",
-                "tasks.$[task].departments.$[dept].date": date
+                "tasks.$[task].departments.$[dept].date": date,
             },
         }, {
             arrayFilters: [
@@ -722,12 +798,26 @@ const update_simple_proj_task = async (req, res, next) => {
 exports.update_simple_proj_task = update_simple_proj_task;
 const delete_simple_project = async (req, res, next) => {
     try {
+        let encodedToken = req.headers.authorization;
+        let decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
         console.log("call reaced");
         let id = req.params.pro_id;
         const resposnse = await hybread_project_schema_1.default.findOneAndDelete({
             _id: new mongoose_1.default.Types.ObjectId(id),
         });
-        console.log(resposnse);
+        if (resposnse) {
+            let departmen_ = await admin_roles_schema_1.admin_roles_models.findOne({
+                _id: new mongoose_1.Types.ObjectId(decodedToken.id),
+            });
+            let msg = {
+                clientname: resposnse.projectTilte,
+                headname: departmen_.name,
+                department: departmen_.department,
+            };
+            let department = departmen_.department;
+            socket_io_1.io.to(department).emit("remove_custom_client", msg);
+            console.log("resposn after delete operaction", resposnse);
+        }
         res.status(200).json({ message: "deleted successfully" });
     }
     catch (error) {
@@ -760,6 +850,82 @@ const delete_simple_project_global_task = async (req, res, next) => {
     }
 };
 exports.delete_simple_project_global_task = delete_simple_project_global_task;
+const add_to_accounts = async (req, res, next) => {
+    try {
+        let encodedToken = req.headers.authorization;
+        let decodedToekn = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+        const add_to_acccount = req.body;
+        const account_data = new billing_proj_accounts_1.default(add_to_acccount);
+        const account_response = await account_data.save();
+        console.log(account_response);
+        if (account_response) {
+            // console.log(account_response);
+            let account_notification = await admin_roles_schema_1.admin_roles_models.findOne({
+                department: "Accounts",
+            });
+            if (account_notification._id && account_notification) {
+                socket_io_1.io.to(account_notification._id.toString()).emit("new_billing_entry", account_response);
+            }
+        }
+        res.status(201).json(account_response);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Unable to save billing entry" });
+    }
+};
+exports.add_to_accounts = add_to_accounts;
+const account_billings = async (req, res, next) => {
+    try {
+        const billing_data = await billing_proj_accounts_1.default.find({});
+        console.log(billing_data);
+        res.status(200).json(billing_data);
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.account_billings = account_billings;
+const edit_accountBilling = async (req, res, next) => {
+    try {
+        let { projectName, description, department } = req.body;
+        let id = req.params.pro_id;
+        const edited = await billing_proj_accounts_1.default.findByIdAndUpdate({ _id: new mongoose_1.Types.ObjectId(id) }, {
+            $set: {
+                projectName: projectName,
+                description: description,
+                department: department,
+            },
+            new: true,
+        });
+        console.log(edited);
+        if (edited) {
+            res.status(200).json({ message: `updated success fully` });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.edit_accountBilling = edit_accountBilling;
+const delete_account_datas = async (req, res, next) => {
+    try {
+        let id = req.params.id;
+        await billing_proj_accounts_1.default
+            .findOneAndDelete({
+            _id: new mongoose_1.Types.ObjectId(id),
+        })
+            .then((data) => {
+            if (data) {
+                res.status(200).json({ message: "success fully deletd" });
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.delete_account_datas = delete_account_datas;
 const get_desk_short = async (req, res, next) => {
     console.log(req.file);
 };

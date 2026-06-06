@@ -12,9 +12,13 @@ import { admin_roles_models } from "../db_controllers/db_models/admin_roles_sche
 import assignedTasksModel from "../db_controllers/db_models/admin_side/assigen-tasks";
 import { group_model } from "../db_controllers/db_models/user_side/scoket.io.group_schema";
 import hybread_project_models from "../db_controllers/db_models/hybread_projects/hybread_project_schema";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
+import { io } from "../user_side/socket.io";
+import { Socket } from "socket.io";
+import accounts_schema_model from "../db_controllers/db_models/admin_side/billing_proj_accounts";
+
 interface IDecodeToken {
-  id: string;
+  id: any;
   iat: number;
 }
 export const task_controller = (task_data: any, task_models: any) => {
@@ -143,6 +147,7 @@ export const createDepartments = async (
   next: NextFunction,
 ) => {
   const { id, title, color, description } = req.body;
+  console.log(req.body);
   const createDepartments = adminCrudFunctions(departmentModel);
   let departmentObj = await createDepartments.createDepartments(
     id,
@@ -325,6 +330,21 @@ export const create_pojects = async (
     decodedToken.id,
     projectData,
   );
+  if (project) {
+    try {
+      // determine head's department and broadcast to that room
+      console.log(project);
+      const headProfile = await admin_roles_models
+        .findById(decodedToken.id)
+        .lean();
+      const deptRoom = headProfile?.department || "IT";
+      io.to(deptRoom).emit("new_project", project);
+    } catch (e) {
+      console.error("Failed to emit new_project socket event", e);
+    }
+  }
+
+  console.log("new project data", project.description, project.title);
   res.status(200).json(project);
 };
 
@@ -421,6 +441,10 @@ export const create_hr_head_task = async (
       assignedByName,
     });
     const savedTask = await taskObj.save();
+    if (savedTask) {
+      io.to(headId).emit("assigned_task", savedTask);
+      console.log("task assigned head id ", headId);
+    }
     res.status(200).json(savedTask);
   } catch (error) {
     console.log(error);
@@ -558,6 +582,16 @@ export const delete_project = async (
     const delete_project = adminCrudFunctions(departmentProjectsModle);
     const deleted_proj = await delete_project.delete_project(id);
     console.log(deleted_proj);
+    if (deleted_proj) {
+      try {
+        const headId = (deleted_proj as any).head_id;
+        const headProfile = await admin_roles_models.findById(headId).lean();
+        const deptRoom = headProfile?.department || "IT";
+        io.to(deptRoom).emit("delete_project", deleted_proj);
+      } catch (e) {
+        console.error("Failed to emit delete_project socket event", e);
+      }
+    }
     res.status(200).json({ message: "deleted successfully" });
   } catch (error) {
     console.log(error);
@@ -774,16 +808,25 @@ export const update_hybread_project_status = async (
     res.status(500).json({ message: "failed to update project status" });
   }
 };
-
+//   adminCrudFunction using stoped here because implement cursor just automate the crud operation wroting
 export const create_simple_custom_project = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    let encodedToken: any = req.headers.authorization;
+    let decodedToken: any = jwt.verify(encodedToken, "secret_key");
     let projectData = req.body;
     const newProject = new hybread_project_models(projectData);
     const savedProject = await newProject.save();
+    if (savedProject) {
+      let head_data: any = await admin_roles_models.findOne({
+        _id: new Types.ObjectId(decodedToken.id),
+      });
+      let department = head_data.department;
+      io.to(department).emit("custom_project", savedProject);
+    }
     res.status(201).json(savedProject);
   } catch (error) {
     console.error(error);
@@ -870,7 +913,7 @@ export const update_simple_project_global_task_status = async (
         $set: {
           "tasks.$[task].departments.$[dept].status": status,
           "tasks.$[task].departments.$[dept].remark": remark || "",
-           "tasks.$[task].departments.$[dept].date": date
+          "tasks.$[task].departments.$[dept].date": date,
         },
       },
       {
@@ -987,18 +1030,33 @@ export const update_simple_proj_task = async (
     console.log(error);
   }
 };
+
 export const delete_simple_project = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
+    let encodedToken: any = req.headers.authorization;
+    let decodedToken: any = jwt.verify(encodedToken, "secret_key");
     console.log("call reaced");
     let id = req.params.pro_id;
     const resposnse = await hybread_project_models.findOneAndDelete({
       _id: new mongoose.Types.ObjectId(id),
     });
-    console.log(resposnse);
+    if (resposnse) {
+      let departmen_: any = await admin_roles_models.findOne({
+        _id: new Types.ObjectId(decodedToken.id),
+      });
+      let msg = {
+        clientname: resposnse.projectTilte,
+        headname: departmen_.name,
+        department: departmen_.department,
+      };
+      let department = departmen_.department;
+      io.to(department).emit("remove_custom_client", msg);
+      console.log("resposn after delete operaction", resposnse);
+    }
     res.status(200).json({ message: "deleted successfully" });
   } catch (error) {
     console.log(error);
@@ -1036,6 +1094,96 @@ export const delete_simple_project_global_task = async (
   }
 };
 
+export const add_to_accounts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let encodedToken: any = req.headers.authorization;
+    let decodedToekn: any = jwt.verify(encodedToken, "secret_key");
+    const add_to_acccount = req.body;
+    const account_data = new accounts_schema_model(add_to_acccount);
+    const account_response = await account_data.save();
+    console.log(account_response);
+    if (account_response) {
+      // console.log(account_response);
+      let account_notification: any = await admin_roles_models.findOne({
+        department: "Accounts",
+      });
+      if (account_notification._id && account_notification) {
+        io.to(account_notification._id.toString()).emit("new_billing_entry", account_response);
+      }
+    }
+    res.status(201).json(account_response);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Unable to save billing entry" });
+  }
+};
+
+export const account_billings = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const billing_data = await accounts_schema_model.find({});
+    console.log(billing_data);
+    res.status(200).json(billing_data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const edit_accountBilling = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let { projectName, description, department } = req.body;
+    let id = req.params.pro_id;
+    const edited = await accounts_schema_model.findByIdAndUpdate(
+      { _id: new Types.ObjectId(id) },
+      {
+        $set: {
+          projectName: projectName,
+          description: description,
+          department: department,
+        },
+        new: true,
+      },
+    );
+    console.log(edited);
+    if (edited) {
+      res.status(200).json({ message: `updated success fully` });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const delete_account_datas = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let id = req.params.id;
+    await accounts_schema_model
+      .findOneAndDelete({
+        _id: new Types.ObjectId(id),
+      })
+      .then((data) => {
+        if (data) {
+          res.status(200).json({ message: "success fully deletd" });
+        }
+      });
+  } catch (error) {
+    console.log(error);
+  }
+};
 export const get_desk_short = async (
   req: Request,
   res: Response,

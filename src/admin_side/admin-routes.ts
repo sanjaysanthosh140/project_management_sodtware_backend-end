@@ -67,6 +67,10 @@ import {
   get_desk_short,
   delete_simple_project,
   delete_simple_project_global_task,
+  add_to_accounts,
+  account_billings,
+  edit_accountBilling,
+  delete_account_datas,
 } from "./task_controllers";
 import multer from "multer";
 const Storage = multer.diskStorage({
@@ -141,8 +145,8 @@ Router.post("/attendance", updateAttendance);
 Router.get("/employe_log", Employe_logs);
 
 Router.post("/Daily_reports", work_Reports);
-Router.put("/update_report/:editingId", edit_daily_report)
-Router.delete("/delete_report/:id", delete_daily_report)
+Router.put("/update_report/:editingId", edit_daily_report);
+Router.delete("/delete_report/:id", delete_daily_report);
 Router.get("/reports", read_reports);
 Router.get("/reports/employee/:employeeId", read_reports_by_employee);
 
@@ -157,7 +161,6 @@ Router.post("/hr_assigned_tasks", create_hr_head_task);
 Router.get("/hr_assigned_tasks", get_hr_head_tasks);
 Router.put("/hr_assigned_tasks/:id", update_hr_head_task);
 Router.delete("/hr_assigned_tasks/:id", delete_hr_head_task);
-
 
 //  projoverview
 Router.get("/project-overview/:project_id", project_overview);
@@ -190,12 +193,21 @@ Router.post("/simple_custom_project_global_task", add_simple_project_global_task
 Router.put("/simple_custom_project_global_task", update_simple_project_global_task_status);
 
 Router.get("/simple_custom_project/:pro_id", get_simple_custom_project_by_id);
-Router.put("/simple_custom_project/:edit_id", update_simple_custom_project)
+Router.put("/simple_custom_project/:edit_id", update_simple_custom_project);
 Router.get("/update_simple_proj_task/:proj_id", get_simple_proj_tasks);
 Router.put("/update_project_tasks", update_simple_proj_task);
 Router.delete("/simple_custom_project/:pro_id", delete_simple_project);
-Router.put("/delete_simple_project_global_task", delete_simple_project_global_task)
+Router.put("/delete_simple_project_global_task", delete_simple_project_global_task);
 
+
+// Accounts management feacture 
+
+Router.post("/add_to_accounts",add_to_accounts);
+Router.get("/billings",account_billings);
+Router.put("/update_account_billings_data/:pro_id",edit_accountBilling);
+Router.delete("/remove_account_data/:id",delete_account_datas);
+// Router.put("/update_account_billings_data/:pro_id",)
 // feature for admin_
 Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
+
 export default Router;
