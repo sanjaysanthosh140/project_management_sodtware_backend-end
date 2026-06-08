@@ -81,8 +81,10 @@ const Storage = multer.diskStorage({
     const uniquesuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + "-" + uniquesuffix + '.jpg')
   }
-})
+});
+
 const upload = multer({ storage: Storage });
+
 Router.post("/verify_authorization", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (email && password) {
@@ -201,7 +203,6 @@ Router.put("/delete_simple_project_global_task", delete_simple_project_global_ta
 
 
 // Accounts management feacture 
-
 Router.post("/add_to_accounts",add_to_accounts);
 Router.get("/billings",account_billings);
 Router.put("/update_account_billings_data/:pro_id",edit_accountBilling);

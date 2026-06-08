@@ -11,11 +11,7 @@ const mongoose_2 = require("mongoose");
 const user_project_controller = async (modules) => {
     return {
         user_assigned_projects: async (id) => {
-<<<<<<< HEAD
             let data = await modules.find({ "teamMembers.userId": id }).sort({ _id: -1 });
-=======
-            let data = await modules.find({ "teamMembers.userId": id }).sort({_id:-1});
->>>>>>> 7f2aa2b50307c1b344505153d716455d8f0a7e87
             return data;
         },
         employee_assigned_tasks: async (id, projectId) => {

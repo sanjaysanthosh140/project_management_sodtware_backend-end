@@ -78,7 +78,7 @@ Router.post("/login", (req: Request, res: Response) => {
 // );
 // Router.get(
 //   "/git_hub/oauth/callback",
-//   passport.authenticate("github", {
+//   passport.authenticate("github", {/employeelists
 //     successRedirect: "http://localhost:5173/app/gateway",
 //     failureRedirect: "http://localhost:5173/login",
 //   }),

@@ -18,6 +18,7 @@ socket_io_1.app.use((0, cors_1.default)({
         "http://localhost:5173",
         "https://alkor-erp-e3b45.web.app",
         "https://alkor-erp.web.app",
+        "https://alkor-erp-8.web.app"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
