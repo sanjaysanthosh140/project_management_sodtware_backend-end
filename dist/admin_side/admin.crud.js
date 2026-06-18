@@ -652,6 +652,87 @@ const adminCrudFunctions = (modules) => {
                 console.log(error);
             }
         },
+        create_production_activities: async (headId, production_data) => {
+            let department = production_data.department;
+            let timestamp = production_data.timestamp;
+            let date = production_data.entries[0].date;
+            let client = production_data.entries[0].client;
+            let category = production_data.entries[0].category;
+            let floorName = production_data.entries[0].floorName;
+            let fromTime = production_data.entries[0].fromTime;
+            let toTime = production_data.entries[0].toTime;
+            let timeIn = production_data.entries[0].timeIn;
+            let timeOut = production_data.entries[0].timeOut;
+            let advance = production_data.entries[0].advance;
+            let finalAmount = production_data.entries[0].finalAmount;
+            let additionalRequirements = production_data.entries[0].additionalRequirements;
+            let allocatedBy = production_data.entries[0].allocatedBy;
+            let head_id = headId;
+            let data = new modules({
+                department,
+                timestamp,
+                date,
+                client,
+                category,
+                floorName,
+                fromTime,
+                toTime,
+                timeIn,
+                timeOut,
+                advance,
+                finalAmount,
+                additionalRequirements,
+                allocatedBy,
+                head_id,
+            });
+            let production_stored = await data.save();
+            console.log(production_stored);
+            return production_data;
+        },
+        get_production_activity: async () => {
+            const data = await modules.find({});
+            console.log(data);
+            return data;
+        },
+        delete_production_data: async (id) => {
+            console.log("working", id);
+            let data = await modules.findOneAndDelete({
+                _id: new mongoose_1.Types.ObjectId(id),
+            });
+            console.log(data);
+            if (data)
+                return data;
+        },
+        edit_prodcution_data: async (proj_id, proj_data, head_id) => {
+            try {
+                console.log(proj_data, proj_id);
+                const updated = await modules.findByIdAndUpdate({ _id: new mongoose_1.Types.ObjectId(proj_id) }, {
+                    $set: {
+                        department: proj_data.department,
+                        timestamp: proj_data.timestamp,
+                        date: proj_data.date,
+                        client: proj_data.client,
+                        category: proj_data.category,
+                        floorName: proj_data.floorName,
+                        fromTime: proj_data.fromTime,
+                        toTime: proj_data.toTime,
+                        timeIn: proj_data.timeIn,
+                        timeOut: proj_data.timeOut,
+                        advance: proj_data.advance,
+                        finalAmount: proj_data.finalAmount,
+                        additionalRequirements: proj_data.additionalRequirements,
+                        allocatedBy: proj_data.allocatedBy,
+                        head_id: head_id,
+                    },
+                }, { new: true });
+                console.log(updated);
+                return updated;
+            }
+            catch (error) {
+                console.log(error);
+                throw error;
+            }
+        },
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

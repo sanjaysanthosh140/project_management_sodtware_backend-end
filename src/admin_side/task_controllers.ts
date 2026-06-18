@@ -16,6 +16,7 @@ import mongoose, { Types } from "mongoose";
 import { io } from "../user_side/socket.io";
 import { Socket } from "socket.io";
 import accounts_schema_model from "../db_controllers/db_models/admin_side/billing_proj_accounts";
+import production_activity_modle from "../db_controllers/db_models/admin_side/production_activity";
 
 interface IDecodeToken {
   id: any;
@@ -1112,7 +1113,10 @@ export const add_to_accounts = async (
         department: "Accounts",
       });
       if (account_notification._id && account_notification) {
-        io.to(account_notification._id.toString()).emit("new_billing_entry", account_response);
+        io.to(account_notification._id.toString()).emit(
+          "new_billing_entry",
+          account_response,
+        );
       }
     }
     res.status(201).json(account_response);
@@ -1190,4 +1194,99 @@ export const get_desk_short = async (
   next: NextFunction,
 ) => {
   console.log(req.file);
+};
+
+export const production_activities = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log(req.body);
+    console.log(req.headers.authorization);
+    let production_data = req.body;
+    let encodedToekn: any = req.headers.authorization;
+    let decodeToken: any = jwt.verify(encodedToekn, "secret_key");
+    let production = adminCrudFunctions(production_activity_modle);
+    let data = await production.create_production_activities(
+      decodeToken.id,
+      production_data,
+    );
+    console.log(decodeToken.id);
+    if (data) {
+      res
+        .status(201)
+        .json({ message: "Production activity saved successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to save production activity" });
+  }
+};
+
+export const get_production_data = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const data_production = await adminCrudFunctions(production_activity_modle);
+    const production = await data_production.get_production_activity();
+    console.log(production);
+    res.status(200).json(production);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const delete_production_data = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    console.log("call reached here");
+    let id = req.params.id;
+    const delelte_production = await adminCrudFunctions(
+      production_activity_modle,
+    );
+    const deleted_Res = await delelte_production.delete_production_data(id);
+    if (deleted_Res !== undefined || null || [])
+      res
+        .status(200)
+        .json(`deleted successfully ${deleted_Res.client} word data`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const edit_production_data = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let proj_id = req.params.id;
+    let proj_data = req.body;
+    let encoded_token: any = req.headers.authorization;
+    let decoded_token: any = jwt.verify(encoded_token, "secret_key");
+    console.log(decoded_token);
+    let head_id = decoded_token.id;
+    let edit_production_data = await adminCrudFunctions(
+      production_activity_modle,
+    );
+    let data = await edit_production_data.edit_prodcution_data(
+      proj_id,
+      proj_data,
+      head_id,
+    );
+    if (data) {
+      res
+        .status(200)
+        .json({ message: "Production activity updated successfully" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to update production activity" });
+  }
 };

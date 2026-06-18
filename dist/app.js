@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const user_routes_1 = __importDefault(require("./user_side/user_routes"));
 const db_connection_1 = __importDefault(require("./db_controllers/db_connection"));
 const admin_routes_1 = __importDefault(require("./admin_side/admin-routes"));
+const ceo_routs_1 = __importDefault(require("./ceo_side/ceo_routs"));
 const cors_1 = __importDefault(require("cors"));
 // import passport from "passport";
 // import express_session from "express-session";
@@ -18,7 +19,7 @@ socket_io_1.app.use((0, cors_1.default)({
         "http://localhost:5173",
         "https://alkor-erp-e3b45.web.app",
         "https://alkor-erp.web.app",
-        "https://alkor-erp-8.web.app"
+        "https://alkor-erp-8.web.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -44,6 +45,7 @@ socket_io_1.app.use((0, cors_1.default)({
 socket_io_1.app.use(express_1.default.json());
 socket_io_1.app.use("/", user_routes_1.default);
 socket_io_1.app.use("/admin", admin_routes_1.default);
+socket_io_1.app.use("/ceo", ceo_routs_1.default);
 socket_io_1.server.listen(port, "0.0.0.0", () => {
     console.log(`server is running on ${port}`);
 });

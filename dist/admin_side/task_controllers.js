@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.get_simple_custom_projects = exports.create_simple_custom_project = exports.update_hybread_project_status = exports.everything_team_task = exports.get_everything = exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
-exports.get_desk_short = exports.delete_account_datas = exports.edit_accountBilling = exports.account_billings = exports.add_to_accounts = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
+exports.edit_production_data = exports.delete_production_data = exports.get_production_data = exports.production_activities = exports.get_desk_short = exports.delete_account_datas = exports.edit_accountBilling = exports.account_billings = exports.add_to_accounts = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -53,6 +53,7 @@ const hybread_project_schema_1 = __importDefault(require("../db_controllers/db_m
 const mongoose_1 = __importStar(require("mongoose"));
 const socket_io_1 = require("../user_side/socket.io");
 const billing_proj_accounts_1 = __importDefault(require("../db_controllers/db_models/admin_side/billing_proj_accounts"));
+const production_activity_1 = __importDefault(require("../db_controllers/db_models/admin_side/production_activity"));
 const task_controller = (task_data, task_models) => {
     return new Promise((resolve, rejects) => {
         const task_obj = new task_models(task_data);
@@ -930,3 +931,75 @@ const get_desk_short = async (req, res, next) => {
     console.log(req.file);
 };
 exports.get_desk_short = get_desk_short;
+const production_activities = async (req, res, next) => {
+    try {
+        console.log(req.body);
+        console.log(req.headers.authorization);
+        let production_data = req.body;
+        let encodedToekn = req.headers.authorization;
+        let decodeToken = jsonwebtoken_1.default.verify(encodedToekn, "secret_key");
+        let production = (0, admin_crud_1.adminCrudFunctions)(production_activity_1.default);
+        let data = await production.create_production_activities(decodeToken.id, production_data);
+        console.log(decodeToken.id);
+        if (data) {
+            res
+                .status(201)
+                .json({ message: "Production activity saved successfully" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Failed to save production activity" });
+    }
+};
+exports.production_activities = production_activities;
+const get_production_data = async (req, res, next) => {
+    try {
+        const data_production = await (0, admin_crud_1.adminCrudFunctions)(production_activity_1.default);
+        const production = await data_production.get_production_activity();
+        console.log(production);
+        res.status(200).json(production);
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.get_production_data = get_production_data;
+const delete_production_data = async (req, res, next) => {
+    try {
+        console.log("call reached here");
+        let id = req.params.id;
+        const delelte_production = await (0, admin_crud_1.adminCrudFunctions)(production_activity_1.default);
+        const deleted_Res = await delelte_production.delete_production_data(id);
+        if (deleted_Res !== undefined || null || [])
+            res
+                .status(200)
+                .json(`deleted successfully ${deleted_Res.client} word data`);
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.delete_production_data = delete_production_data;
+const edit_production_data = async (req, res, next) => {
+    try {
+        let proj_id = req.params.id;
+        let proj_data = req.body;
+        let encoded_token = req.headers.authorization;
+        let decoded_token = jsonwebtoken_1.default.verify(encoded_token, "secret_key");
+        console.log(decoded_token);
+        let head_id = decoded_token.id;
+        let edit_production_data = await (0, admin_crud_1.adminCrudFunctions)(production_activity_1.default);
+        let data = await edit_production_data.edit_prodcution_data(proj_id, proj_data, head_id);
+        if (data) {
+            res
+                .status(200)
+                .json({ message: "Production activity updated successfully" });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Failed to update production activity" });
+    }
+};
+exports.edit_production_data = edit_production_data;

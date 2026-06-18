@@ -71,6 +71,10 @@ import {
   account_billings,
   edit_accountBilling,
   delete_account_datas,
+  production_activities,
+  get_production_data,
+  delete_production_data,
+  edit_production_data,
 } from "./task_controllers";
 import multer from "multer";
 const Storage = multer.diskStorage({
@@ -209,6 +213,10 @@ Router.put("/update_account_billings_data/:pro_id",edit_accountBilling);
 Router.delete("/remove_account_data/:id",delete_account_datas);
 // Router.put("/update_account_billings_data/:pro_id",)
 // feature for admin_
-Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
+Router.post("/production-activities",production_activities);
+Router.get("/production_activity",get_production_data);
+Router.delete("/production-activities/:id",delete_production_data);
+Router.put("/production-activitys-edits/:id",edit_production_data);
 
+Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
 export default Router;

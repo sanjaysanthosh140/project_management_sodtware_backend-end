@@ -2,6 +2,7 @@ import express from "express";
 import user_side from "./user_side/user_routes";
 import connectiion from "./db_controllers/db_connection";
 import admin_side from "./admin_side/admin-routes";
+import ceo_side from "./ceo_side/ceo_routs";
 import cors from "cors";
 // import passport from "passport";
 // import express_session from "express-session";
@@ -14,7 +15,7 @@ app.use(
       "http://localhost:5173",
       "https://alkor-erp-e3b45.web.app",
       "https://alkor-erp.web.app",
-      "https://alkor-erp-8.web.app"
+      "https://alkor-erp-8.web.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -42,6 +43,7 @@ connectiion();
 app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
+ app.use("/ceo", ceo_side);
 
 server.listen(port, "0.0.0.0", () => {
   console.log(`server is running on ${port}`);
