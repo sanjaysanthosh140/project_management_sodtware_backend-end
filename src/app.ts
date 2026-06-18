@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://alkor-erp-e3b45.web.app",
+      "https://alkor-9da2a.web.app",
       "https://alkor-erp.web.app",
       "https://alkor-erp-8.web.app",
     ],
