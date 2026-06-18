@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://alkor-9da2a.web.app",
+      "https://alkor-erp-e230b.web.app",
       "https://alkor-erp.web.app",
       "https://alkor-erp-8.web.app",
     ],
@@ -43,7 +43,7 @@ connectiion();
 app.use(express.json());
 app.use("/", user_side);
 app.use("/admin", admin_side);
- app.use("/ceo", ceo_side);
+app.use("/ceo", ceo_side);
 
 server.listen(port, "0.0.0.0", () => {
   console.log(`server is running on ${port}`);

@@ -17,7 +17,7 @@ const socket_io_1 = require("./user_side/socket.io");
 socket_io_1.app.use((0, cors_1.default)({
     origin: [
         "http://localhost:5173",
-        "https://alkor-9da2a.web.app",
+        "https://alkor-erp-e230b.web.app",
         "https://alkor-erp.web.app",
         "https://alkor-erp-8.web.app",
     ],

@@ -20,7 +20,7 @@ const io = new socket_io_1.Server(server, {
             "http://localhost:5173",
             "https://alkor-erp.web.app",
             "https://alkor-erp-8.web.app",
-            "https://alkor-9da2a.web.app",
+            "https://alkor-erp-e230b.web.app",
         ],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
