@@ -75,6 +75,7 @@ import {
   get_production_data,
   delete_production_data,
   edit_production_data,
+  get_reports,
 } from "./task_controllers";
 import multer from "multer";
 const Storage = multer.diskStorage({
@@ -217,6 +218,8 @@ Router.post("/production-activities",production_activities);
 Router.get("/production_activity",get_production_data);
 Router.delete("/production-activities/:id",delete_production_data);
 Router.put("/production-activitys-edits/:id",edit_production_data);
+
+Router.get("/get_reports",get_reports);
 
 Router.post("/desktop_shorts", upload.single('short'), get_desk_short);
 export default Router;

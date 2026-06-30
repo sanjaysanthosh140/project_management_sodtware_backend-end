@@ -1146,8 +1146,9 @@ export const edit_accountBilling = async (
   next: NextFunction,
 ) => {
   try {
-    let { projectName, description, department } = req.body;
+    let { projectName, description, department ,status} = req.body;
     let id = req.params.pro_id;
+    console.log(projectName,description,department,status);
     const edited = await accounts_schema_model.findByIdAndUpdate(
       { _id: new Types.ObjectId(id) },
       {
@@ -1155,6 +1156,7 @@ export const edit_accountBilling = async (
           projectName: projectName,
           description: description,
           department: department,
+          status:status
         },
         new: true,
       },
@@ -1290,3 +1292,19 @@ export const edit_production_data = async (
     res.status(500).json({ message: "Failed to update production activity" });
   }
 };
+
+export const get_reports = async(req:Request,res:Response,next:NextFunction)=>{
+  try {
+    const encodedToken:any = req.headers.authorization;
+    const decodedToken:any = jwt.verify(encodedToken,"secret_key");
+    console.log("function called for head reports",decodedToken.id);
+    const get_department_report = await adminCrudFunctions(DailyReportsModel)
+    const data = await get_department_report.department_Reports(decodedToken.id);
+    if(data){
+      res.status(200).json({data:data});
+    }
+  } catch (error) {
+    console.log(error)
+  }
+
+}

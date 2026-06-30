@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose, { mongo, Types } from "mongoose";
 import user_model from "../db_controllers/db_models/user_schema";
+import { admin_roles_models } from "../db_controllers/db_models/admin_roles_schema";
 interface IteamMembers {
   userId: string;
   name: string;
@@ -866,6 +867,18 @@ export const adminCrudFunctions = (modules: any) => {
         console.log(error);
         throw error;
       }
+
+    
     },
+    department_Reports:async(head_id:string)=>{
+       const head = await admin_roles_models.findById({_id:new Types.ObjectId(head_id)});
+       let department = head?.department
+      let data = await  modules.find({
+           deptId:department
+      }).sort({_id:-1});
+        console.log(data);
+        return data;
+    }
   };
+
 };

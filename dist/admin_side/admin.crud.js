@@ -40,6 +40,7 @@ exports.adminCrudFunctions = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const mongoose_1 = __importStar(require("mongoose"));
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
+const admin_roles_schema_1 = require("../db_controllers/db_models/admin_roles_schema");
 const adminCrudFunctions = (modules) => {
     return {
         fetchAllUsers: async () => {
@@ -733,6 +734,15 @@ const adminCrudFunctions = (modules) => {
                 throw error;
             }
         },
+        department_Reports: async (head_id) => {
+            const head = await admin_roles_schema_1.admin_roles_models.findById({ _id: new mongoose_1.Types.ObjectId(head_id) });
+            let department = head?.department;
+            let data = await modules.find({
+                deptId: department
+            }).sort({ _id: -1 });
+            console.log(data);
+            return data;
+        }
     };
 };
 exports.adminCrudFunctions = adminCrudFunctions;

@@ -139,5 +139,6 @@ Router.post("/production-activities", task_controllers_1.production_activities);
 Router.get("/production_activity", task_controllers_1.get_production_data);
 Router.delete("/production-activities/:id", task_controllers_1.delete_production_data);
 Router.put("/production-activitys-edits/:id", task_controllers_1.edit_production_data);
+Router.get("/get_reports", task_controllers_1.get_reports);
 Router.post("/desktop_shorts", upload.single('short'), task_controllers_1.get_desk_short);
 exports.default = Router;

@@ -37,7 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.get_simple_custom_projects = exports.create_simple_custom_project = exports.update_hybread_project_status = exports.everything_team_task = exports.get_everything = exports.create_hybread_custom_project = exports.create_hybread_team = exports.emplyee_perfomance_data = exports.edit_group = exports.get_group = exports.delete_groupe = exports.get_admin_profile = exports.updateadminpasswods = exports.deleteadmins = exports.get_admins = exports.updateUserpassword = exports.hr_projects_progress = exports.delete_project = exports.update_project = exports.edit_project = exports.project_overview = exports.delete_hr_head_task = exports.update_hr_head_task = exports.get_hr_head_tasks = exports.create_hr_head_task = exports.update_assigned_tasks = exports.check_assigned_taks = exports.assigned_tasks = exports.Fetch_projects = exports.availableEmployess = exports.create_pojects = exports.read_reports_by_employee = exports.read_reports = exports.delete_daily_report = exports.edit_daily_report = exports.work_Reports = exports.Employe_logs = exports.updateAttendance = exports.updateDepartments = exports.deleteDepartments = exports.fetchDepartments = exports.createDepartments = exports.updateEmplye = exports.deleteEmploye = exports.update_admin = exports.create_admins = exports.addEmploye = exports.fetchUsers = exports.read_tasks = exports.task_controller = void 0;
-exports.edit_production_data = exports.delete_production_data = exports.get_production_data = exports.production_activities = exports.get_desk_short = exports.delete_account_datas = exports.edit_accountBilling = exports.account_billings = exports.add_to_accounts = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
+exports.get_reports = exports.edit_production_data = exports.delete_production_data = exports.get_production_data = exports.production_activities = exports.get_desk_short = exports.delete_account_datas = exports.edit_accountBilling = exports.account_billings = exports.add_to_accounts = exports.delete_simple_project_global_task = exports.delete_simple_project = exports.update_simple_proj_task = exports.get_simple_proj_tasks = exports.update_simple_custom_project = exports.get_simple_custom_project_by_id = exports.update_simple_project_global_task_status = exports.add_simple_project_global_task = exports.update_simple_project_status = void 0;
 const admin_crud_1 = require("./admin.crud");
 const user_schema_1 = __importDefault(require("../db_controllers/db_models/user_schema"));
 const department_schema_1 = __importDefault(require("../db_controllers/db_models/admin_side/department_schema"));
@@ -889,13 +889,15 @@ const account_billings = async (req, res, next) => {
 exports.account_billings = account_billings;
 const edit_accountBilling = async (req, res, next) => {
     try {
-        let { projectName, description, department } = req.body;
+        let { projectName, description, department, status } = req.body;
         let id = req.params.pro_id;
+        console.log(projectName, description, department, status);
         const edited = await billing_proj_accounts_1.default.findByIdAndUpdate({ _id: new mongoose_1.Types.ObjectId(id) }, {
             $set: {
                 projectName: projectName,
                 description: description,
                 department: department,
+                status: status
             },
             new: true,
         });
@@ -1003,3 +1005,19 @@ const edit_production_data = async (req, res, next) => {
     }
 };
 exports.edit_production_data = edit_production_data;
+const get_reports = async (req, res, next) => {
+    try {
+        const encodedToken = req.headers.authorization;
+        const decodedToken = jsonwebtoken_1.default.verify(encodedToken, "secret_key");
+        console.log("function called for head reports", decodedToken.id);
+        const get_department_report = await (0, admin_crud_1.adminCrudFunctions)(Daily_reports_1.default);
+        const data = await get_department_report.department_Reports(decodedToken.id);
+        if (data) {
+            res.status(200).json({ data: data });
+        }
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.get_reports = get_reports;
