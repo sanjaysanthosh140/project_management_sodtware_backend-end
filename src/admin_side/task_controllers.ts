@@ -231,6 +231,8 @@ export const work_Reports = async (
   res: Response,
   next: NextFunction,
 ) => {
+  console.log("report for head", req.body);
+
   const { username, desc, deptId, type, date } = await req.body;
   let token: any = req.headers.authorization;
   let decodedToken: any = jwt.verify(token, "secret_key");
@@ -1146,9 +1148,9 @@ export const edit_accountBilling = async (
   next: NextFunction,
 ) => {
   try {
-    let { projectName, description, department ,status} = req.body;
+    let { projectName, description, department, status } = req.body;
     let id = req.params.pro_id;
-    console.log(projectName,description,department,status);
+    console.log(projectName, description, department, status);
     const edited = await accounts_schema_model.findByIdAndUpdate(
       { _id: new Types.ObjectId(id) },
       {
@@ -1156,7 +1158,7 @@ export const edit_accountBilling = async (
           projectName: projectName,
           description: description,
           department: department,
-          status:status
+          status: status,
         },
         new: true,
       },
@@ -1293,18 +1295,42 @@ export const edit_production_data = async (
   }
 };
 
-export const get_reports = async(req:Request,res:Response,next:NextFunction)=>{
+export const get_reports = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    const encodedToken:any = req.headers.authorization;
-    const decodedToken:any = jwt.verify(encodedToken,"secret_key");
-    console.log("function called for head reports",decodedToken.id);
-    const get_department_report = await adminCrudFunctions(DailyReportsModel)
-    const data = await get_department_report.department_Reports(decodedToken.id);
-    if(data){
-      res.status(200).json({data:data});
+    const encodedToken: any = req.headers.authorization;
+    const decodedToken: any = jwt.verify(encodedToken, "secret_key");
+    console.log("function called for head reports", decodedToken.id);
+    const get_department_report = await adminCrudFunctions(DailyReportsModel);
+    const data = await get_department_report.department_Reports(
+      decodedToken.id,
+    );
+    if (data) {
+      res.status(200).json({ data: data });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
+};
 
-}
+export const heads_reports = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let encodedToken: any = req.headers.authorization;
+    let decodedToken: any = jwt.verify(encodedToken, "secret_key");
+    let headId = decodedToken.id;
+    let heads_previous_reports = await adminCrudFunctions(DailyReportsModel);
+    let data_response = await heads_previous_reports.head_previous_repoerts(headId);
+    console.log("head_reports",data_response);
+    res.status(200).json(data_response);
+
+  } catch (error) {
+    console.log(error);
+  }
+};

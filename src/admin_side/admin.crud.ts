@@ -59,6 +59,11 @@ export const adminCrudFunctions = (modules: any) => {
     ) => {
       let salt = bcrypt.genSaltSync(10);
       let hash2 = bcrypt.hashSync(password, salt);
+      console.log("data from hr_dash", department.length);
+      if (department.length === 18) {
+        department = "DM";
+        console.log(department);
+      }
       const employ_Obj = new modules({
         name: name,
         email: email,
@@ -67,6 +72,7 @@ export const adminCrudFunctions = (modules: any) => {
       });
       let emplyObj = await employ_Obj.save();
       return emplyObj;
+
       // function to create users ....
     },
 
@@ -98,6 +104,10 @@ export const adminCrudFunctions = (modules: any) => {
       email: string,
       department: string,
     ) => {
+      if (department.length === 18) {
+        department = "DM";
+        console.log(department);
+      }
       let updateEmploye = await modules.findByIdAndUpdate(
         id,
         {
@@ -815,7 +825,7 @@ export const adminCrudFunctions = (modules: any) => {
       });
       let production_stored = await data.save();
       console.log(production_stored);
-      return production_data
+      return production_data;
     },
 
     get_production_activity: async () => {
@@ -867,18 +877,28 @@ export const adminCrudFunctions = (modules: any) => {
         console.log(error);
         throw error;
       }
-
-    
     },
-    department_Reports:async(head_id:string)=>{
-       const head = await admin_roles_models.findById({_id:new Types.ObjectId(head_id)});
-       let department = head?.department
-      let data = await  modules.find({
-           deptId:department
-      }).sort({_id:-1});
-        console.log(data);
+    department_Reports: async (head_id: string) => {
+      const head = await admin_roles_models.findById({
+        _id: new Types.ObjectId(head_id),
+      });
+      let department = head?.department;
+      let data = await modules
+        .find({
+          deptId: department,
+        })
+        .sort({ _id: -1 });
+      console.log(data);
+      return data;
+    },
+    head_previous_repoerts: async (headId: string) => {
+      console.log(headId);
+      let data = await modules.find({ userID: headId });
+      if (data !== undefined || data !== null || data.length !== -1) {
         return data;
-    }
+      } else {
+        return "no data";
+      }
+    },
   };
-
 };

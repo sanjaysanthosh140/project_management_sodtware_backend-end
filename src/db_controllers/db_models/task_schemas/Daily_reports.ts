@@ -26,7 +26,7 @@ const daily_reports_schema = new Schema({
     type: String,
   },
   deptId: {
-    require: true,
+    require: false,
     type: String,
   },
 });

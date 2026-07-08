@@ -52,7 +52,7 @@ const daily_reports_schema = new mongoose_1.Schema({
         type: String,
     },
     deptId: {
-        require: true,
+        require: false,
         type: String,
     },
 });
